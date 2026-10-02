@@ -20,13 +20,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 技术核心：把两套来源（基线课表 class_slots + 教师临时变更 room_updates）
- * 折算成每间教室的空闲区间。
+ * 技术核心：把两类输入折成每间教室的空闲区间。
+ *   输入 A：学校课表（class_slots，按星期几循环）—— 权威来源，由学校自己的系统更新；
+ *   输入 B：管理员发布的临时变更（room_updates）—— 只有管理员能写。
+ * 学生只查询，不产生任何占用。
  *
  * 规则：
- *   1. 基线课表按星期几循环，取当天的所有课；
- *   2. RELEASE 的变更（释放时间）从占用里"挖掉"；
- *   3. USE 的变更（添加使用）加进占用；
+ *   1. 学校课表优先：管理员发布的变更既不能取消、也不能覆盖课表里已有的课（学校 > 管理员）；
+ *   2. USE（添加使用）加进占用，实际只会落在课表没排课的时间上；
+ *   3. RELEASE（释放时间）只撤销管理员自己用 USE 加上的那段占用；
  *   4. 每个占用段两侧各留 buffer 分钟（换场时间），不足 buffer 的间隙不算可用；
  *   5. 只在开放时段内（默认 08:00-22:00）计算空闲。
  */
@@ -198,7 +200,7 @@ public class AvailabilityService {
             }
         }
 
-        String status = statusAt(updates, fromMin, busy, matches, free);
+        String status = statusAt(fromMin, busy, matches, free);
         String note = switch (status) {
             case "IN_USE" -> "In use right now";
             case "AVAILABLE_LATER" -> "Free later today";
@@ -218,12 +220,20 @@ public class AvailabilityService {
                 updateRepo.findByRoomIdAndSlotDateAndActiveTrue(roomId, date));
     }
 
-    /** 纯计算，不碰数据库：把课表和变更折成占用的区间 */
+    /**
+     * 纯计算，不碰数据库：把学校课表和临时变更折成占用的区间。
+     *
+     * 优先级：学校课表 > 管理员。两类输入不会同时产生占用，所以这里不需要"冲突消解"：
+     *   - 课表里的课是权威的，管理员的变更挖不掉它；
+     *   - 释放只能撤销管理员自己加的占用，碰不到课表；
+     *   - 学生没有写路径，产生不了占用。
+     */
     static List<int[]> busyFrom(List<ClassSlot> slots, List<RoomUpdate> updates) {
-        List<int[]> busy = new ArrayList<>();
+        List<int[]> timetable = new ArrayList<>();
         for (ClassSlot s : slots) {
-            busy.add(new int[]{toMinutes(s.getStartTime()), toMinutes(s.getEndTime())});
+            timetable.add(new int[]{toMinutes(s.getStartTime()), toMinutes(s.getEndTime())});
         }
+        List<int[]> added = new ArrayList<>();
         List<int[]> released = new ArrayList<>();
         for (RoomUpdate u : updates) {
             if (!isEffective(u)) continue;
@@ -231,10 +241,12 @@ public class AvailabilityService {
             if (u.getChangeType() == RoomUpdate.ChangeType.RELEASE) {
                 released.add(iv);
             } else {
-                busy.add(iv);
+                added.add(iv);
             }
         }
-        return merge(subtract(busy, released));
+        List<int[]> busy = new ArrayList<>(timetable);
+        busy.addAll(subtract(added, released));   // 释放只作用于管理员自己加的占用
+        return merge(busy);
     }
 
     /** 撤销过的、或已经过了有效期的变更，一律不再生效 */
@@ -243,16 +255,13 @@ public class AvailabilityService {
         return u.getExpiresAt() == null || !u.getExpiresAt().isBefore(java.time.LocalDateTime.now());
     }
 
-    private String statusAt(List<RoomUpdate> updates, Integer fromMin, List<int[]> busy,
-                            boolean matches, List<int[]> free) {
+    /**
+     * 状态只看"已经折算过"的占用区间（busy）。
+     * 以前这里还额外扫一遍原始变更列表，结果被 RELEASE 撤销掉的变更依然报 IN_USE，
+     * 与同一响应里给出的空闲窗口自相矛盾。busy 已经等于 课表 ∪ (添加 − 撤销)，所以够用。
+     */
+    private String statusAt(Integer fromMin, List<int[]> busy, boolean matches, List<int[]> free) {
         if (fromMin != null) {
-            for (RoomUpdate u : updates) {
-                if (!isEffective(u)) continue;
-                int s = toMinutes(u.getStartTime()), e = toMinutes(u.getEndTime());
-                if (fromMin >= s && fromMin < e) {
-                    return "IN_USE";
-                }
-            }
             for (int[] b : busy) {
                 if (fromMin >= b[0] && fromMin < b[1]) return "IN_USE";
             }

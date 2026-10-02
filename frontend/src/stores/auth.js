@@ -14,7 +14,13 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async login(username, password) {
-      const { data } = await api.post('/auth/login', { username, password })
+      return this.save((await api.post('/auth/login', { username, password })).data)
+    },
+    /** 自助注册：只收 HKU 邮箱（后缀校验在服务端），注册成功即登录 */
+    async register(username, email, password) {
+      return this.save((await api.post('/auth/register', { username, email, password })).data)
+    },
+    save(data) {
       this.token = data.token
       this.username = data.username
       this.displayName = data.displayName

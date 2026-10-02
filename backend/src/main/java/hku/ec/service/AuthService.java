@@ -72,6 +72,35 @@ public class AuthService {
         return resolve(token).map(s -> "admin".equals(s.role())).orElse(false);
     }
 
+    /**
+     * 只接受 HKU 邮箱：@hku.hk，或任意子域（如 @connect.hku.hk）。
+     * 判断方式是"域名部分等于 hku.hk 或以 .hku.hk 结尾"，所以 hku.hk.evil.com 这类过不了。
+     */
+    public static boolean isHkuEmail(String email) {
+        if (email == null) return false;
+        String e = email.trim().toLowerCase(java.util.Locale.ROOT);
+        int at = e.indexOf('@');
+        if (at <= 0 || at != e.lastIndexOf('@')) return false;
+        String domain = e.substring(at + 1);
+        return domain.equals("hku.hk") || domain.endsWith(".hku.hk");
+    }
+
+    public boolean usernameTaken(String username) {
+        return username != null && users.findByUsername(username.trim()).isPresent();
+    }
+
+    /** 自助注册：邮箱 + 密码即可，不发验证邮件；角色固定 user（学生只能浏览） */
+    public Session register(String username, String email, String password) {
+        String salt = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+        AppUser u = AppUser.registered(
+                username.trim(),
+                email.trim().toLowerCase(java.util.Locale.ROOT),
+                salt,
+                hash(salt, password));
+        users.save(u);
+        return new Session(u.getUsername(), u.getDisplayName(), u.getRole());
+    }
+
     static String hash(String salt, String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");

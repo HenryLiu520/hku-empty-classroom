@@ -98,18 +98,32 @@ class AvailabilityServiceTest {
     }
 
     @Test
-    @DisplayName("4. 释放时间：RELEASE 会把被课占住的时间释放出来")
-    void releaseFreesTime() {
-        slot("14:00", "15:00");
-
+    @DisplayName("4. 释放时间：RELEASE 只能撤销管理员自己添加的占用")
+    void releaseOnlyCancelsAnAdminAddition() {
+        update(RoomUpdate.ChangeType.USE, "14:00", "15:00");
         boolean before = hasWindowCovering(at("14:30", 20), 14 * 60 + 30, 14 * 60 + 50);
 
         update(RoomUpdate.ChangeType.RELEASE, "14:00", "15:00");
-
         boolean after = hasWindowCovering(at("14:30", 20), 14 * 60 + 30, 14 * 60 + 50);
 
-        assertFalse(before, "释放之前，14:30 应被这节课占用");
-        assertTrue(after, "释放之后，14:30 应变成可用");
+        assertFalse(before, "管理员加上的占用生效后，14:30 不该算可用");
+        assertTrue(after, "撤销这次添加之后，14:30 应恢复可用");
+        assertEquals("AVAILABLE", at("14:30", 20).status(),
+                "撤销后状态不能还停在 IN_USE —— 那会和同一响应里的空闲窗口自相矛盾");
+    }
+
+    @Test
+    @DisplayName("4b. 优先级：学校课表高于管理员 —— RELEASE 挖不掉课表里的课")
+    void releaseCannotOverrideTheTimetable() {
+        slot("14:00", "15:00");
+
+        update(RoomUpdate.ChangeType.RELEASE, "14:00", "15:00");
+
+        Dtos.RoomAvailability ra = at("14:30", 20);
+
+        assertFalse(hasWindowCovering(ra, 14 * 60 + 30, 14 * 60 + 50),
+                "学校课表是权威来源：管理员发布的释放不能把课表里已有的课挖掉");
+        assertEquals("IN_USE", ra.status());
     }
 
     @Test

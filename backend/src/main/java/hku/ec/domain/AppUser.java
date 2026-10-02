@@ -26,10 +26,27 @@ public class AppUser {
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
+    /** 自助注册时填的 HKU 邮箱；早期演示账号这一列是空的 */
+    @Column(name = "email", length = 128)
+    private String email;
+
+    /** 自助注册：角色固定 user，学生只有浏览权限 */
+    public static AppUser registered(String username, String email, String salt, String passwordHash) {
+        AppUser u = new AppUser();
+        u.username = username;
+        u.displayName = username;
+        u.role = "user";
+        u.email = email;
+        u.salt = salt;
+        u.passwordHash = passwordHash;
+        return u;
+    }
+
     public Long getId() { return id; }
     public String getUsername() { return username; }
     public String getDisplayName() { return displayName; }
     public String getRole() { return role; }
     public String getSalt() { return salt; }
     public String getPasswordHash() { return passwordHash; }
+    public String getEmail() { return email; }
 }

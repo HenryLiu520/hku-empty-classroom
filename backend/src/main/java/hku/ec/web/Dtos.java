@@ -83,5 +83,8 @@ public final class Dtos {
     /** 管理员编辑设施（第一批三条）：座位总数 / 有没有插座 / 座位类型 */
     public record FacilitiesRequest(Integer capacity, Boolean sockets, String seatType) { }
 
+    /** 自助注册：邮箱 + 密码；邮箱后缀必须在接口层卡成 HKU 的 */
+    public record RegisterRequest(String username, String email, String password) { }
+
     public record ApiError(String error, String message) { }
 }

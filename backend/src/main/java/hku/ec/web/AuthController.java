@@ -27,6 +27,35 @@ public class AuthController {
         return ResponseEntity.ok(new Dtos.LoginResponse(token, session.username(), session.displayName(), session.role()));
     }
 
+    /**
+     * 自助注册：邮箱 + 密码。原型不发验证邮件，但邮箱后缀必须是 HKU 的
+     * （@hku.hk 或任意子域，如 @connect.hku.hk）；新账号一律是 user 角色。
+     */
+    @PostMapping("/auth/register")
+    public ResponseEntity<?> register(@RequestBody Dtos.RegisterRequest req) {
+        if (!AuthService.isHkuEmail(req.email())) {
+            return ResponseEntity.badRequest().body(new Dtos.ApiError("BAD_EMAIL",
+                    "Use your HKU email address: it has to end in hku.hk, for example @connect.hku.hk"));
+        }
+        String username = req.username() == null ? "" : req.username().trim();
+        if (username.length() < 3) {
+            return ResponseEntity.badRequest().body(new Dtos.ApiError("BAD_USERNAME",
+                    "Username must be at least 3 characters"));
+        }
+        if (req.password() == null || req.password().length() < 6) {
+            return ResponseEntity.badRequest().body(new Dtos.ApiError("BAD_PASSWORD",
+                    "Password must be at least 6 characters"));
+        }
+        if (auth.usernameTaken(username)) {
+            return ResponseEntity.status(409).body(new Dtos.ApiError("USERNAME_TAKEN",
+                    "That username is already taken"));
+        }
+        AuthService.Session s = auth.register(username, req.email(), req.password());
+        String token = auth.issueTokenFor(s.username(), s.displayName(), s.role());
+        return ResponseEntity.status(201)
+                .body(new Dtos.LoginResponse(token, s.username(), s.displayName(), s.role()));
+    }
+
     @GetMapping("/auth/me")
     public ResponseEntity<?> me(@RequestHeader(value = "Authorization", required = false) String authHeader) {
         String token = Tokens.from(authHeader);
