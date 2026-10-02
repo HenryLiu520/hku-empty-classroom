@@ -119,8 +119,10 @@ export default {
       tabMine: 'My changes', tabAll: 'All changes from every manager', tabAudit: 'Audit log',
       colChange: 'Change', colInterval: 'Interval', colState: 'State', colAction: 'Action',
       colSubmittedBy: 'Submitted by', colWhen: 'When', colActor: 'Actor', colDetail: 'Detail',
-      allManagersHint: 'A manager can manage any change, not only their own. Nothing is '
-        + 'deleted: cancelling only makes a change inactive.',
+      allManagersHint: 'Every change is listed here so that work can be handed over. You can '
+        + 'cancel your own changes; cancelling another administrator\'s change is a super '
+        + 'administrator action. Nothing is deleted: cancelling only makes a change inactive.',
+      onlySuperCanCancel: 'Only a super administrator can cancel another administrator\'s change',
       cancelAction: 'Cancel', stateActive: 'Active', stateExpired: 'Expired',
       saved: 'Change saved and applied',
       cancelled: 'Change cancelled, the time is released',
@@ -139,6 +141,7 @@ export default {
       BAD_TIME: 'The start time must be on the hour and the end time must be at :50, for example '
         + '14:00 to 15:50.',
       FORBIDDEN: 'Only administrators can change room use time.',
+      FORBIDDEN_OWNER: 'Only a super administrator can cancel another administrator\'s change.',
       UNAUTHORIZED: 'Your session is no longer valid — sign in again.',
       SERVER_ERROR: 'Something went wrong on the server.'
     }
@@ -254,8 +257,9 @@ export default {
       tabMine: '我的变更', tabAll: '所有管理员的变更', tabAudit: '审计日志',
       colChange: '变更', colInterval: '时间', colState: '状态', colAction: '操作',
       colSubmittedBy: '提交人', colWhen: '时间', colActor: '操作者', colDetail: '详情',
-      allManagersHint: '管理员可以管理任何一条变更，不只自己的。数据不会被删除：'
-        + '撤销只是让它失效。',
+      allManagersHint: '这里列出所有管理员的变更，方便交接。你可以撤销自己提交的；要撤销别的管理员'
+        + '提交的变更，需要超级管理员。数据不会被删除：撤销只是让它失效。',
+      onlySuperCanCancel: '只有超级管理员能撤销别的管理员提交的变更',
       cancelAction: '撤销', stateActive: '生效中', stateExpired: '已失效',
       saved: '变更已保存并生效',
       cancelled: '变更已撤销，时间已释放',
@@ -272,6 +276,7 @@ export default {
       TIMETABLE_PRIORITY: '学校课表优先级最高：这段时间有课，只能在课表显示为空的时间上添加或释放。',
       BAD_TIME: '开始时间必须是整点，结束时间必须是 :50，例如 14:00 到 15:50。',
       FORBIDDEN: '只有管理员能修改教室使用时间。',
+      FORBIDDEN_OWNER: '只有超级管理员能撤销别的管理员提交的变更。',
       UNAUTHORIZED: '登录态已失效——请重新登录。',
       SERVER_ERROR: '服务器出错了。'
     }
@@ -387,8 +392,9 @@ export default {
       tabMine: '我的變更', tabAll: '所有管理員的變更', tabAudit: '稽核日誌',
       colChange: '變更', colInterval: '時間', colState: '狀態', colAction: '操作',
       colSubmittedBy: '提交人', colWhen: '時間', colActor: '操作者', colDetail: '詳情',
-      allManagersHint: '管理員可以管理任何一筆變更，不只自己的。資料不會被刪除：'
-        + '撤銷只是讓它失效。',
+      allManagersHint: '這裡列出所有管理員的變更，方便交接。你可以撤銷自己提交的；要撤銷別的管理員'
+        + '提交的變更，需要超級管理員。資料不會被刪除：撤銷只是讓它失效。',
+      onlySuperCanCancel: '只有超級管理員能撤銷別的管理員提交的變更',
       cancelAction: '撤銷', stateActive: '生效中', stateExpired: '已失效',
       saved: '變更已儲存並生效',
       cancelled: '變更已撤銷，時間已釋放',
@@ -405,6 +411,7 @@ export default {
       TIMETABLE_PRIORITY: '學校課表優先級最高：這段時間有課，只能在課表顯示為空的時間上新增或釋放。',
       BAD_TIME: '開始時間必須是整點，結束時間必須是 :50，例如 14:00 到 15:50。',
       FORBIDDEN: '只有管理員能修改教室使用時間。',
+      FORBIDDEN_OWNER: '只有超級管理員能撤銷別的管理員提交的變更。',
       UNAUTHORIZED: '登入狀態已失效——請重新登入。',
       SERVER_ERROR: '伺服器出錯了。'
     }

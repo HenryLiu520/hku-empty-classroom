@@ -77,7 +77,8 @@
             </el-table-column>
             <el-table-column :label="t('manage.colAction')" width="110">
               <template #default="{ row }">
-                <el-button link type="primary" :disabled="row.state !== 'Active'" @click="cancel(row)">
+                <el-button link type="primary" :disabled="row.state !== 'Active' || !canCancel(row)"
+                           :title="canCancel(row) ? '' : t('manage.onlySuperCanCancel')" @click="cancel(row)">
                   {{ t('manage.cancelAction') }}
                 </el-button>
               </template>
@@ -107,7 +108,8 @@
             </el-table-column>
             <el-table-column :label="t('manage.colAction')" width="110">
               <template #default="{ row }">
-                <el-button link type="primary" :disabled="row.state !== 'Active'" @click="cancel(row)">
+                <el-button link type="primary" :disabled="row.state !== 'Active' || !canCancel(row)"
+                           :title="canCancel(row) ? '' : t('manage.onlySuperCanCancel')" @click="cancel(row)">
                   {{ t('manage.cancelAction') }}
                 </el-button>
               </template>
@@ -133,10 +135,12 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import api from '../api'
+import { useAuthStore } from '../stores/auth'
 import { useApiError } from '../i18n/apiError'
 
 const { t } = useI18n()
 const apiError = useApiError()
+const auth = useAuthStore()
 
 const rooms = ref([])
 const mine = ref([])
@@ -203,6 +207,11 @@ async function cancel(row) {
   } catch (e) {
     ElMessage.error(apiError(e, 'manage.failedCancel'))
   }
+}
+
+function canCancel(row) {
+  // 管理员只能撤销自己提交的变更；动别人的必须超级管理员（服务端也会再拦一道）
+  return auth.isSuper || row.createdBy === auth.username
 }
 
 function label(type) {

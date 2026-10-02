@@ -215,6 +215,25 @@ class AvailabilityServiceTest {
         assertEquals(14, segs.stream().mapToInt(Dtos.Segment::span).sum(), "08:00–22:00 一共 14 个整点块");
     }
 
+    @Test
+    @DisplayName("10. 撤销权限：管理员只能撤自己提交的，超级管理员才能撤别人的")
+    void onlyOwnerOrSuperCanCancel() {
+        RoomUpdate mine = updateService.create(new Dtos.UpdateRequest(room.getId(), "USE", date.toString(),
+                "16:00", "16:50", "unit test mine", null), "adminA");
+        RoomUpdate theirs = updateService.create(new Dtos.UpdateRequest(room.getId(), "USE", date.toString(),
+                "17:00", "17:50", "unit test theirs", null), "adminB");
+
+        assertThrows(IllegalStateException.class,
+                () -> updateService.cancel(theirs.getId(), "adminA", false),
+                "管理员不能撤销别的管理员提交的变更");
+        assertThrows(IllegalStateException.class,
+                () -> updateService.cancel(mine.getId(), "adminB", false),
+                "反过来也一样");
+
+        updateService.cancel(mine.getId(), "adminA", false);        // 自己的：可以
+        updateService.cancel(theirs.getId(), "super1", true);       // 超级管理员：可以
+    }
+
     // ---------------------------------------------------------------- helpers
 
     private void slot(String start, String end) {

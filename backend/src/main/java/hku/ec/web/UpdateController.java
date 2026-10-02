@@ -78,12 +78,16 @@ public class UpdateController {
         String token = Tokens.from(authHeader);
         try {
             AuthService.Session s = auth.require(token, "admin");
-            updates.cancel(id, s.username());
+            // 管理员只能撤销自己提交的；超级管理员可以撤销任何人的
+            updates.cancel(id, s.username(), AuthService.atLeast(s.role(), "superadmin"));
             return ResponseEntity.ok(updates.mine(s.username()));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new Dtos.ApiError("BAD_REQUEST", e.getMessage()));
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(403).body(new Dtos.ApiError(e.getMessage(), "Admins only"));
+            boolean notOwner = "FORBIDDEN_OWNER".equals(e.getMessage());
+            return ResponseEntity.status(403).body(new Dtos.ApiError(e.getMessage(),
+                    notOwner ? "Only a superadmin can cancel another administrator's change"
+                             : "Admins only"));
         }
     }
 

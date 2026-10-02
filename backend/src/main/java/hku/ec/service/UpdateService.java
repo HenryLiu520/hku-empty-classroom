@@ -98,11 +98,18 @@ public class UpdateService {
         return saved;
     }
 
+    /**
+     * 撤销变更。
+     * 权限分离：管理员只能撤销**自己提交的**变更；要动别的管理员的变更，必须是超级管理员。
+     */
     @Transactional
-    public void cancel(Long id, String actor) {
+    public void cancel(Long id, String actor, boolean canCancelAnyone) {
         RoomUpdate u = updates.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Update not found: " + id));
         String owner = u.getCreatedBy();
+        if (!canCancelAnyone && !owner.equals(actor)) {
+            throw new IllegalStateException("FORBIDDEN_OWNER");
+        }
         int n = updates.cancelById(id);
         if (n == 0) {
             throw new IllegalArgumentException("Update not found: " + id);

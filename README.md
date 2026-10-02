@@ -47,6 +47,8 @@ a room, and — only if the account is allowed to — change room time or manage
 - Whole blocks only: a change starts on the hour and ends at `:50`, exactly like a class.
 - The University timetable always wins. A change that would overlap a class is rejected outright with
   `400 TIMETABLE_PRIORITY` instead of being silently ignored.
+- You can cancel your own changes. Cancelling **another** administrator's change is a super administrator
+  action, and the server enforces that — the button is disabled and the API answers `403 FORBIDDEN_OWNER`.
 - Every change carries a reason, expires on its own when given an expiry, and is written to the audit log.
 
 ### 5. Manage accounts — super administrators
@@ -62,7 +64,8 @@ a room, and — only if the account is allowed to — change room time or manage
 |---|---|---|---|
 | Search rooms and open room pages | ✓ | ✓ | ✓ |
 | Write, change and delete your own review | ✓ | ✓ | ✓ |
-| Lock or release a room's time (whole hours) | — | ✓ | ✓ |
+| Lock, release or cancel **your own** changes (whole hours) | — | ✓ | ✓ |
+| Cancel **any** change, including another administrator's | — | — | ✓ |
 | Edit room facilities; remove any review | — | ✓ | ✓ |
 | Manage accounts: create, promote/demote, reset password, delete | — | — | ✓ |
 
