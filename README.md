@@ -20,7 +20,7 @@ This project joins the two things that decide whether a room is usable — the *
 ## What it does
 
 - **Search** — pick a day, a building and a time window (`14:00 → 15:50`) and see which rooms are free for all of it. Each result says whether the room is free now, free later, or in use.
-- **Every room has a page** — its timetable for the day as an hour-by-hour grid (one cell per hour, with the real times written inside, so a class ending at `11:50` reads `11:50`), its facilities (seats, sockets, seat type), and reviews from other students.
+- **Every room has a page** — its timetable for the day as an hour-block grid: one cell per hour, where a two-hour class is a single block spanning two cells, labelled with its real times (`13:00–14:50`), its facilities (seats, sockets, seat type), and reviews from other students.
 - **All rooms** — the full room list with sorting, independent of any time filter.
 - **Reviews** — one star rating per person per room; administrators can remove any review, and removals are logged.
 - **Facility edits** — seats / sockets / seat type are editable **only by administrators**; each save stamps a "last verified" time, and rooms that have never been verified say so on screen.
@@ -48,6 +48,7 @@ Where the busy blocks come from is the part that matters most:
 
 | | |
 |---|---|
+| **Occupancy is whole hours** | Every class starts on the hour and ends at `:50`, so a two-hour class occupies two whole blocks (`13:00–14:50`) and never half of one. Staff changes are expressed in whole blocks as well. |
 | **The University timetable is the authority** | A change posted by staff can only occupy time the timetable shows as free. The server rejects any change that overlaps a class (`400 TIMETABLE_PRIORITY`) — it does not silently ignore it. |
 | **Students cannot affect occupancy** | Student accounts have no write path at all. The check happens on the server, not by hiding buttons: a student token gets `403` on the change endpoint. |
 | **We ask, we do not copy** | The University's timetable is read from a read-only endpoint and polled, with a freshness check against a last-updated stamp. We keep no copy and never write to their system. In the prototype this source is sample data (see *Limitations*). |
@@ -126,7 +127,7 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 ./scripts/test.sh        # needs the database running; the script starts it if needed
 ```
 
-**20 automated tests, all passing** (9 interval-maths unit tests, 9 availability/rule tests, 2 sign-up rule tests). The boundary cases the report leans on:
+**21 automated tests, all passing** (9 interval-maths unit tests, 10 availability/rule tests, 2 sign-up rule tests). The boundary cases the report leans on:
 
 | Case | Test | |
 |---|---|---|
@@ -138,6 +139,7 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 | A change that overlaps a class is rejected outright | `adminCannotChangeClassTime` | ✓ |
 | During a class the room reports *in use* | `duringClassIsInUse` | ✓ |
 | Non-hour times are rejected | `offHourTimesAreRejected` | ✓ |
+| A two-hour class is one block spanning two hours | `timelineMergesWholeHourBlocks` | ✓ |
 | Only `hku.hk` addresses may register | `RegistrationRulesTest` (2 cases) | ✓ |
 
 Tests are `@Transactional` and roll back, so running them never pollutes the demo data.

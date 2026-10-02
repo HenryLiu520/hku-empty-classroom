@@ -190,6 +190,24 @@ class AvailabilityServiceTest {
                 "课表没课的时间仍然可以正常添加使用");
     }
 
+    @Test
+    @DisplayName("9. 时间轴：连续占用合成一整块 —— 两小时的课 = 跨两格，标签写 13:00–14:50")
+    void timelineMergesWholeHourBlocks() {
+        slot("13:00", "14:50");            // 两小时 = 2 个整点块
+
+        List<Dtos.Segment> segs = availability.timeline(date, ROOM_CODE);
+
+        Dtos.Segment block = segs.stream()
+                .filter(s -> "BUSY".equals(s.type()))
+                .findFirst().orElseThrow(() -> new AssertionError("应该有一块被占的方格"));
+        assertEquals("13:00", block.hour(), "块从 13:00 开始");
+        assertEquals(2, block.span(), "两小时的课占两个整点块");
+        assertEquals("13:00", block.from());
+        assertEquals("14:50", block.to(), "显示的是真实下课时间");
+        assertEquals("13:00\u201314:50", block.label(), "一整块写完整区间，不拆成 13:00–13:50 与 14:00–14:50");
+        assertEquals(14, segs.stream().mapToInt(Dtos.Segment::span).sum(), "08:00–22:00 一共 14 个整点块");
+    }
+
     // ---------------------------------------------------------------- helpers
 
     private void slot(String start, String end) {

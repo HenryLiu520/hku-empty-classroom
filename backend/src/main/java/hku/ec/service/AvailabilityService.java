@@ -120,53 +120,51 @@ public class AvailabilityService {
     }
 
     /**
-     * 时间轴：按整点切成方格，一格 = 一个小时（08:00–09:00、09:00–10:00 …）。
+     * 时间轴：一格一个整点，连续的占用合成「一整块」。
      *
-     * 为什么按整点切：一节课 10:00–11:50，下课时间是 :50，如果按真实长度画，
-     * 11:50 会在格子里剩一条难看的细缝。按整点切、把这一节算进 10:00 和 11:00 两格，
-     * 格子是整齐的，而格子里面写的是真实时间（"11:00–11:50"），数字上照样是几点 50。
+     * 占用以整块为单位（Plan §3.1）：所有课整点开始、:50 结束，所以
+     *   50 分钟 = 1 块、110 分钟 = 2 块（13:00–14:50）、170 分钟 = 3 块。
+     * 两小时的课在图上就是跨两格的一整块，标签写真实的 "13:00–14:50"，
+     * 不会拆成 "13:00–13:50" 和 "14:00–14:50" 两小块。
      */
     public List<Dtos.Segment> timeline(LocalDate date, String roomCode) {
         Room room = roomRepo.findByCode(roomCode)
                 .orElseThrow(() -> new IllegalArgumentException("unknown room: " + roomCode));
         int openStart = toMinutes(props.getOpeningStart());
         int openEnd = toMinutes(props.getOpeningEnd());
-        int buffer = props.getBufferMinutes();
 
         List<int[]> busy = busyIntervals(room.getId(), date);
 
-        List<Dtos.Segment> out = new ArrayList<>();
-        for (int hour = openStart; hour < openEnd; hour += 60) {
-            int cellEnd = Math.min(hour + 60, openEnd);
-            String type = "FREE";
-            int markStart = -1, markEnd = -1;
+        int cells = Math.max(1, (openEnd - openStart) / 60);
+        boolean[] occupied = new boolean[cells];
+        for (int[] b : busy) {
+            int first = Math.max(0, (b[0] - openStart) / 60);
+            int last = Math.min(cells - 1, (b[1] - 1 - openStart) / 60);   // 贴着边界结束时不占下一格
+            for (int i = first; i <= last; i++) {
+                occupied[i] = true;
+            }
+        }
 
-            // 1) 先看真实占用（课表 / 发布的使用）
-            for (int[] b : busy) {
-                int s = Math.max(b[0], hour), e = Math.min(b[1], cellEnd);
-                if (s < e) {
-                    type = "BUSY";
-                    markStart = markStart < 0 ? s : Math.min(markStart, s);
-                    markEnd = Math.max(markEnd, e);
-                }
+        List<Dtos.Segment> out = new ArrayList<>();
+        int i = 0;
+        while (i < cells) {
+            int hour = openStart + i * 60;
+            if (!occupied[i]) {
+                out.add(new Dtos.Segment(mm(hour), "FREE", 1, mm(hour), mm(hour + 60), ""));
+                i++;
+                continue;
             }
-            // 2) 再看换场余量（只有余量盖到这一格时才算 BUFFER）
-            if ("FREE".equals(type)) {
-                for (int[] b : busy) {
-                    int s = Math.max(b[0] - buffer, hour), e = Math.min(b[1] + buffer, cellEnd);
-                    if (s < e) {
-                        type = "BUFFER";
-                        markStart = markStart < 0 ? s : Math.min(markStart, s);
-                        markEnd = Math.max(markEnd, e);
-                    }
-                }
+            int j = i;
+            while (j + 1 < cells && occupied[j + 1]) {
+                j++;
             }
-            if (markStart < 0) {           // 整格都空
-                markStart = hour;
-                markEnd = cellEnd;
-            }
-            out.add(new Dtos.Segment(mm(hour), type, mm(markStart), mm(markEnd),
-                    "FREE".equals(type) ? "" : mm(markStart) + "\u2013" + mm(markEnd)));
+            int blockStart = openStart + i * 60;
+            int blockEnd = openStart + (j + 1) * 60;      // 这一块的右边界（整点）
+            int classEnd = blockEnd - 10;                 // 按课表口径显示到 :50
+            out.add(new Dtos.Segment(mm(blockStart), "BUSY", j - i + 1,
+                    mm(blockStart), mm(classEnd),
+                    mm(blockStart) + "\u2013" + mm(classEnd)));
+            i = j + 1;
         }
         return out;
     }

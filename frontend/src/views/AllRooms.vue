@@ -88,19 +88,19 @@
         <el-alert v-if="timelineError" type="error" :closable="false" show-icon :title="timelineError" class="mb" />
         <div class="tl-grid" :style="gridStyle">
           <div v-for="(s, i) in (timeline ? timeline.segments : [])" :key="i"
-               :class="['cell', s.type === 'BUSY' ? 'busy' : s.type === 'FREE' ? 'free' : 'buf']"
-               :title="(s.type === 'BUSY' ? 'In use ' : s.type === 'BUFFER' ? 'Changeover ' : 'Free ') + s.from + ' – ' + s.to">
+               :class="['cell', s.type === 'BUSY' ? 'busy' : 'free']"
+               :style="s.span > 1 ? { gridColumn: 'span ' + s.span } : null"
+               :title="(s.type === 'BUSY' ? 'In use ' : 'Free ') + s.from + ' – ' + s.to">
             <span>{{ s.label }}</span>
           </div>
         </div>
         <div class="tl-axis" :style="gridStyle">
-          <span v-for="(s, i) in (timeline ? timeline.segments : [])" :key="i">{{ i % 2 === 0 ? s.hour : '' }}</span>
+          <span v-for="(h, i) in axisHours" :key="i">{{ i % 2 === 0 ? h : '' }}</span>
         </div>
         <p class="tl-note">{{ tlNote }}</p>
         <div class="legend">
-          <span><i class="sw busy"></i>In use (class or posted change)</span>
+          <span><i class="sw busy"></i>In use (class or posted change, whole hours)</span>
           <span><i class="sw free"></i>Free</span>
-          <span><i class="sw buf"></i>Changeover margin, not offered</span>
         </div>
 
         <!-- ------------------------------------------------ 学生评价 -->
@@ -180,6 +180,7 @@ const date = ref(today)
 const timeline = ref(null)
 const gridStyle = ref('')
 const tlNote = ref('')
+const axisHours = ref([])
 const timelineError = ref('')
 const reviews = ref(null)
 const reviewSort = ref('time')
@@ -249,15 +250,23 @@ async function loadTimeline() {
   try {
     const { data } = await api.get(`/rooms/${selected.value.code}/timeline`, { params: { date: date.value } })
     timeline.value = data
-    // 一格 = 一个整点：格子等宽排列，格子里写真实时间（下课 11:50 就写 11:50）
+    // 占用以整块为单位：连续的整点块合成一格（span 格宽），标签写真实时间（13:00–14:50）
     const segs = data.segments || []
-    gridStyle.value = 'grid-template-columns: repeat(' + Math.max(1, segs.length) + ', 1fr)'
+    const totalHours = segs.reduce((n, s) => n + (s.span || 1), 0)
+    gridStyle.value = 'grid-template-columns: repeat(' + Math.max(1, totalHours) + ', 1fr)'
+    const hours = []
+    segs.forEach(s => {
+      const base = parseInt(s.hour.slice(0, 2), 10) * 60 + parseInt(s.hour.slice(3), 10)
+      for (let k = 0; k < (s.span || 1); k++) {
+        const t = base + k * 60
+        hours.push(String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'))
+      }
+    })
+    axisHours.value = hours
     const busy = segs.filter(s => s.type === 'BUSY' && s.label).map(s => s.label)
-    const buf = segs.filter(s => s.type === 'BUFFER' && s.label).map(s => s.label)
-    tlNote.value = (!busy.length && !buf.length)
-      ? 'No classes and no posted changes on this day — free all day.'
-      : [busy.length ? 'In use ' + busy.join(', ') : '',
-         buf.length ? 'changeover ' + buf.join(', ') : ''].filter(Boolean).join(' · ')
+    tlNote.value = busy.length
+      ? 'In use ' + busy.join(', ')
+      : 'No classes and no posted changes on this day — free all day.'
   } catch (e) {
     timelineError.value = 'Could not load the timetable for this room: ' + (e.response?.status || e.message)
   }
@@ -341,6 +350,7 @@ async function refreshAll() {
 .busy { background: #5B8FF9; }
 .free { background: #7BC96F; }
 .buf { background: repeating-linear-gradient(45deg, #E4E7ED, #E4E7ED 4px, #F5F7FA 4px, #F5F7FA 8px); color: #8A94A6; }
+.cell.busy, .cell.free { min-width: 0; }
 .tl-axis { display: grid; gap: 2px; margin-top: 4px; color: #8A94A6; font-size: 10px; }
 .tl-axis span { overflow: hidden; white-space: nowrap; }
 .tl-note { margin: 8px 0 0; color: #606266; font-size: 12px; }

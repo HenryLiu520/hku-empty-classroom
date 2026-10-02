@@ -16,12 +16,15 @@ public final class Dtos {
     public record Window(String start, String end, int minutes) { }
 
     /**
-     * 时间轴的一格 —— 一格就是一个整点（"11:00" 代表 11:00–12:00）。
-     * from/to 是这一格里真实被占（或换场）的时间：一格跨着一节课的尾巴时，
-     * 写的是真实时间（例如 "11:00" 格里是 11:00–11:50），而不是硬凑成整点。
-     * label 直接给界面显示，FREE 格为空。
+     * 时间轴的一格。
+     *   hour  = 这一格的起点（整点，如 "13:00"）
+     *   type  = BUSY（被占） | FREE（空）
+     *   span  = 这一格占几个整点块。一小时的空闲 = 1；一整块占用可能是多小时的课
+     *           （13:00–14:50 的课占 13:00 和 14:00 两个块，合并成一格，span = 2）
+     *   from/to = 真实时间。占用格写 "13:00"–"14:50"，空闲格写这一小时本身
+     *   label = 界面显示的文字：占用格一定有（"13:00–14:50"），空闲格为空
      */
-    public record Segment(String hour, String type, String from, String to, String label) { }
+    public record Segment(String hour, String type, int span, String from, String to, String label) { }
 
     public record RoomAvailability(
             RoomView room,
