@@ -242,7 +242,7 @@ empty-classroom/
 
 ## 授權與致謝
 
-本儲存庫是課程作業、不對外分發，因此沒有獨立的 LICENSE 檔案。用到的第三方元件全部是寬鬆授權——前端棧（Vue 3、Vite、Element Plus、Pinia、axios、vue-i18n）為 MIT，Spring Boot 與 Flyway 為 Apache-2.0，資料庫為 PostgreSQL 授權，JDBC 驅動為 BSD-2-Clause——逐項列在 [THIRD-PARTY.md](THIRD-PARTY.md)。介面沿用了 youlai [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin)（MIT）帶起的側欄式後台版式；**未複製該專案任何程式碼**。 介面頂部使用香港大學的校徽與字標，主色取港大視覺規範裡的 HKU Green（#024638）；這些標記屬於香港大學，此處僅用於標示這份課程作業原型。
+本儲存庫是課程作業、不對外分發，因此沒有獨立的 LICENSE 檔案。用到的第三方元件全部是寬鬆授權——前端棧（Vue 3、Vite、Element Plus、Pinia、axios、vue-i18n）為 MIT，Spring Boot 與 Flyway 為 Apache-2.0，資料庫為 PostgreSQL 授權，JDBC 驅動為 BSD-2-Clause——逐項列在 [THIRD-PARTY.md](THIRD-PARTY.md)。介面沿用了 youlai [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin)（MIT）帶起的側欄式後台版式；**未複製該專案任何程式碼**。 介面頂部使用香港大學的校徽與字標，主色取港大視覺規範裡的 HKU Green（#024638）；這些標記屬於香港大學，此處僅用於標示這份課程作業原型。 頁面背景用了兩張港大主樓的照片，來自 Wikimedia Commons，CC BY-SA 授權（攝影 Yumeto、Damaskam），見 [THIRD-PARTY.md](THIRD-PARTY.md)。
 
 ## 專案背景
 

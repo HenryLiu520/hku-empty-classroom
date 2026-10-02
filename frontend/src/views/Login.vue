@@ -119,7 +119,10 @@ async function submit() {
 <style scoped>
 .login-wrap {
   min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
-  background: radial-gradient(1200px 620px at 12% 0%, #e7f0ed 0%, #f4f7f5 48%, #edf3f1 100%);
+  /* 港大主楼照片当背景。登录页要看得清，所以只压一层很薄的浅色纱，卡片本身是不透明的。 */
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, .20) 0%, rgba(244, 247, 245, .42) 100%),
+    url('../assets/hku-hero.jpg') center / cover no-repeat fixed;
 }
 .login-card {
   display: flex; width: 760px; max-width: 100%; background: #fff; border-radius: 16px;

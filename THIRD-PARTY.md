@@ -25,3 +25,17 @@ University of Hong Kong. They are reproduced here to identify a coursework proto
 for the University, and no licence to them is granted by this repository. The artwork was
 taken from the University's own website (hku.hk) and is unmodified; for the small sidebar
 mark it is cropped to the shield alone, and the wordmark is dropped.
+
+## Photographs
+
+Two photographs of the University's Main Building are used as page backgrounds. Both come
+from Wikimedia Commons and are unmodified apart from being scaled down.
+
+| File in this repository | Photographer | Licence | Source |
+|---|---|---|---|
+| `hku-hero.jpg` | Yumeto | CC BY-SA 4.0 | [20250906 Main Building.jpg](https://commons.wikimedia.org/wiki/File:20250906_Main_Building.jpg) |
+| `hku-campus.jpg` | Damaskam | CC BY-SA 3.0 | [The inside of The University of Hong Kong Main Building corridor.JPG](https://commons.wikimedia.org/wiki/File:The_inside_of_The_University_of_Hong_Kong_Main_Building_corridor.JPG) |
+
+CC BY-SA requires attribution and share-alike: if these images are reused, keep this table
+with them. The licence is the photographer's, not this project's; the project's own files
+carry no licence (see above).

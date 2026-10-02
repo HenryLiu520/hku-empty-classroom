@@ -8,6 +8,8 @@
     <router-view v-if="$route.path === '/login'" />
 
     <el-container v-else class="shell">
+      <!-- 内页背景：港大主楼拱廊，去饱和压暗当底纹，内容仍然压在它上面 -->
+      <div class="shell-bg" aria-hidden="true"></div>
       <el-aside width="210px" class="side">
         <div class="logo">
           <img class="crest" :src="crest" alt="The University of Hong Kong" />
@@ -98,7 +100,16 @@ function signOut() {
 html, body, #app { height: 100%; margin: 0; }
 body { font-family: -apple-system, "Helvetica Neue", Helvetica, "PingFang HK", "Microsoft YaHei", Arial, sans-serif; }
 
-.shell { height: 100vh; }
+.shell { height: 100vh; position: relative; }
+
+/* 内页背景层：照片只作为底纹，不参与点击，也不影响任何文字对比度 */
+.shell-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: url('./assets/hku-campus.jpg') center / cover no-repeat;
+  filter: grayscale(.88) contrast(1.06) brightness(1.06);
+  opacity: .42;
+}
+.shell > .el-container, .side { position: relative; z-index: 1; }
 
 /* 侧栏：港大深绿，底部略深一点 */
 .side {
@@ -143,5 +154,6 @@ body { font-family: -apple-system, "Helvetica Neue", Helvetica, "PingFang HK", "
 .crumb b { color: #024638; font-weight: 600; }
 .right { display: flex; align-items: center; gap: 12px; }
 .who { font-size: 13px; color: #5c6b67; }
-.content { background: #f4f7f5; }
+/* 让照片透出来：内容区本身不铺底色，卡片保持不透明 */
+.content { background: transparent; }
 </style>
