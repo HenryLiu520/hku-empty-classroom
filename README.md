@@ -48,7 +48,7 @@ Where the busy blocks come from is the part that matters most:
 
 | | |
 |---|---|
-| **Occupancy is whole hours** | Every class starts on the hour and ends at `:50`, so a two-hour class occupies two whole blocks (`13:00–14:50`) and never half of one. Staff changes are expressed in whole blocks as well. |
+| **Occupancy is whole hours** | Every class starts on the hour and ends at `:50`, so a two-hour class occupies two whole blocks (`13:00–14:50`) and never half of one. Staff changes follow the same convention: they start on the hour and end at `:50`. |
 | **The University timetable is the authority** | A change posted by staff can only occupy time the timetable shows as free. The server rejects any change that overlaps a class (`400 TIMETABLE_PRIORITY`) — it does not silently ignore it. |
 | **Students cannot affect occupancy** | Student accounts have no write path at all. The check happens on the server, not by hiding buttons: a student token gets `403` on the change endpoint. |
 | **We ask, we do not copy** | The University's timetable is read from a read-only endpoint and polled, with a freshness check against a last-updated stamp. We keep no copy and never write to their system. In the prototype this source is sample data (see *Limitations*). |
@@ -57,7 +57,7 @@ Where the busy blocks come from is the part that matters most:
 
 | Rule | Where | How it was verified |
 |---|---|---|
-| Start on the hour, search end at `:50` | `AvailabilityService.requireSearchWindow` / `requireWholeHours` | `from=14:30` → `400`; `to=16:00` → `400` |
+| Start on the hour, end at `:50` (searches and staff changes alike) | `AvailabilityService.requireSearchWindow` / `requireWholeHours` | `from=14:30` → `400`; `to=16:00` → `400` |
 | Staff changes may not touch class time | `UpdateService.create` (overlap test) | `RELEASE`/`USE` over a class → `400 TIMETABLE_PRIORITY` |
 | Only administrators can post changes | `AuthService.require(token, "admin")` | student token → `403 FORBIDDEN` |
 | Only `hku.hk` addresses can register | `AuthService.isHkuEmail` | `@gmail.com` and `@connect.hku.hk.evil.com` → `400` |
@@ -185,7 +185,7 @@ empty-classroom/
 |---|---|
 | **"Free" does not mean "empty"** | The system answers *"is this room taken by a class or a posted change?"*, not *"how many people are in it?"*. Rooms are shared; the UI says so explicitly. |
 | The timetable is sample data | `V2__seed.sql` is a plausible mock, not the real timetable, and the University's endpoint is not connected yet. Every figure in the report must come from real data before it is claimed. |
-| Prototype-grade auth | Tokens live in memory (a restart invalidates them), passwords use `SHA-256(salt:password)` rather than bcrypt, and there is no HTTPS. This is not a production authentication design. |
+| Prototype-grade auth | Tokens live in memory (a restart invalidates them) — when that happens the app signs you out and returns to the login page; passwords use `SHA-256(salt:password)` rather than bcrypt, and there is no HTTPS. This is not a production authentication design. |
 | No verification email | Sign-up checks the address suffix only; anyone can type any `hku.hk`-shaped address. |
 | Reviews are not moderated | "One per person per room, deletable by the author, removable by an administrator" — there is no report or filtering queue. |
 | Facilities are sample values | Pre-filled placeholders per room type; the screen says `sample data, not verified yet` until an administrator saves. Do not present them as surveyed. |

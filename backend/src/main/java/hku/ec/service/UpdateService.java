@@ -51,8 +51,9 @@ public class UpdateService {
         if (!end.isAfter(start)) {
             throw new IllegalArgumentException("End time must be after start time");
         }
-        if (start.getMinute() != 0 || end.getMinute() != 0) {
-            throw new IllegalArgumentException("Times must be on the hour, for example 14:00 to 16:00");
+        if (start.getMinute() != 0 || end.getMinute() != 50) {
+            throw new IllegalArgumentException(
+                    "The start time must be on the hour and the end time must be at :50, for example 14:00 to 15:50");
         }
         RoomUpdate.ChangeType type;
         try {

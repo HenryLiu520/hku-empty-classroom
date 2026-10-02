@@ -34,7 +34,7 @@
           <el-time-select v-model="form.start" start="08:00" step="01:00" end="21:00" style="width: 100%" />
         </el-form-item>
         <el-form-item label="To (hour)">
-          <el-time-select v-model="form.end" start="09:00" step="01:00" end="22:00" style="width: 100%" />
+          <el-time-select v-model="form.end" start="08:50" step="01:00" end="21:50" style="width: 100%" />
         </el-form-item>
 
         <el-form-item label="Reason">
@@ -134,23 +134,32 @@ const loading = ref(false)
 
 const today = new Date().toISOString().slice(0, 10)
 const form = ref({
-  roomId: null, changeType: 'REQUISITION', date: today,
-  start: '14:00', end: '16:00', reason: '', expiresAt: ''
+  roomId: null, changeType: 'USE', date: today,
+  start: '14:00', end: '15:50', reason: '', expiresAt: ''
 })
 
 onMounted(loadAll)
 
 async function loadAll() {
   loading.value = true
+  // 房间列表单独取：它是这个页面的关键控件，不能被别的请求拖垮
   try {
-    const [r, m, a, lg] = await Promise.all([
-      api.get('/rooms'), api.get('/updates/mine'), api.get('/updates'), api.get('/audit')
-    ])
+    const r = await api.get('/rooms')
     rooms.value = r.data
+    if (!form.value.roomId && r.data.length) form.value.roomId = r.data[0].id
+  } catch (e) {
+    ElMessage.error('Could not load the room list: ' + (e.response?.status || e.message))
+  }
+  try {
+    const [m, a, lg] = await Promise.all([
+      api.get('/updates/mine'), api.get('/updates'), api.get('/audit')
+    ])
     mine.value = m.data
     all.value = a.data
     auditRows.value = lg.data
-    if (!form.value.roomId && r.data.length) form.value.roomId = r.data[0].id
+  } catch (e) {
+    ElMessage.error(e.response?.data?.message
+      || 'Your administrator session is no longer valid — sign in again.')
   } finally {
     loading.value = false
   }
