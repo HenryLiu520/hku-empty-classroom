@@ -1,3 +1,8 @@
+<!--
+  Empty Classroom Plan — HKU COMP1110 Group 08
+  Author: LIU Haoran (u3686264) · 2026
+  Signature: EC-COMP1110-G08-u3686264-2026
+-->
 <template>
   <div class="login-wrap">
     <div class="login-card">
@@ -11,6 +16,8 @@
           <a v-for="l in languages" :key="l.value" href="#"
              :class="{ on: l.value === locale }" @click.prevent="setLocale(l.value)">{{ l.label }}</a>
         </div>
+        <!-- 署名：作者、学号、组别 -->
+        <p class="byline">LIU Haoran &middot; u3686264 &middot; COMP1110 Group 08</p>
       </aside>
 
       <!-- 右边：表单 -->
@@ -131,6 +138,7 @@ async function submit() {
 .brand .langs { margin-top: auto; padding-top: 22px; display: flex; gap: 14px; font-size: 12px; }
 .brand .langs a { color: rgba(255, 255, 255, .58); text-decoration: none; }
 .brand .langs a.on { color: #fff; font-weight: 600; border-bottom: 1px solid #b49764; }
+.byline { margin: 12px 0 0; font-size: 10.5px; color: rgba(255, 255, 255, .46); letter-spacing: .01em; }
 
 /* 表单区 */
 .form { flex: 1; padding: 38px 34px; }

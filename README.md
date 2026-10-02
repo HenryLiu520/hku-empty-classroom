@@ -3,7 +3,7 @@
 **English** · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md)
 
 > A web app that answers one question about HKU teaching rooms: **which rooms are free between classes, right now?**
-> Vue 3 + Spring Boot + PostgreSQL · COMP1110 Group 08 (HKU)
+> Vue 3 + Spring Boot + PostgreSQL · COMP1110 Group 08 (HKU) · built by **LIU Haoran (u3686264)**
 
 ![Search page: which rooms are free from 14:00 to 15:50](docs/images/find-a-room.png)
 

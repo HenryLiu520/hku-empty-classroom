@@ -3,7 +3,7 @@
 [English](README.md) · **简体中文** · [繁體中文](README.zh-TW.md)
 
 > 回答一个关于港大教室的问题：**课间到底哪几间教室是空的？**
-> Vue 3 + Spring Boot + PostgreSQL · COMP1110 第 08 组（香港大学）
+> Vue 3 + Spring Boot + PostgreSQL · COMP1110 第 08 组（香港大学）· 由 **LIU Haoran（u3686264）** 开发
 
 ![查询页：14:00 到 15:50 哪些教室空着](docs/images/find-a-room.png)
 

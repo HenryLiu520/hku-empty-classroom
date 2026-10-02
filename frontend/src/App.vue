@@ -1,3 +1,8 @@
+<!--
+  Empty Classroom Plan — HKU COMP1110 Group 08
+  Author: LIU Haoran (u3686264) · 2026
+  Signature: EC-COMP1110-G08-u3686264-2026
+-->
 <template>
   <el-config-provider :locale="epLocale">
     <router-view v-if="$route.path === '/login'" />
@@ -15,6 +20,12 @@
           <el-menu-item v-if="auth.isAdmin" index="/manage">{{ t('nav.manage') }}</el-menu-item>
           <el-menu-item v-if="auth.isSuper" index="/accounts">{{ t('nav.accounts') }}</el-menu-item>
         </el-menu>
+        <!-- 署名：作者、学号、组别 -->
+        <div class="colophon">
+          <b>LIU Haoran</b>
+          <span>u3686264 &middot; Group 08</span>
+          <span>COMP1110 &middot; HKU &middot; 2026</span>
+        </div>
       </el-aside>
       <el-container>
         <el-header class="nav">
@@ -93,7 +104,17 @@ body { font-family: -apple-system, "Helvetica Neue", Helvetica, "PingFang HK", "
 .side {
   background: linear-gradient(180deg, #024638 0%, #013a2e 100%);
   border-right: 1px solid rgba(0, 0, 0, .10);
+  display: flex; flex-direction: column;
 }
+.side .el-menu { flex: 1; }
+
+/* 侧栏底部署名 */
+.colophon {
+  padding: 12px 18px 14px; border-top: 1px solid rgba(255, 255, 255, .10);
+  display: flex; flex-direction: column; gap: 2px;
+  color: rgba(255, 255, 255, .52); font-size: 10.5px; letter-spacing: .01em;
+}
+.colophon b { color: rgba(255, 255, 255, .84); font-size: 11.5px; font-weight: 600; }
 .logo {
   height: 64px; display: flex; align-items: center; gap: 10px; padding: 0 18px;
   border-bottom: 1px solid rgba(255, 255, 255, .10);

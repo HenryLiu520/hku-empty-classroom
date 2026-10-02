@@ -18,6 +18,10 @@
   --el-color-primary-light-9: #e6efed;
   --el-color-primary-dark-2: #01382d;
   --el-border-radius-base: 8px;
+
+  /* 署名钢印（界面上不显示，出包的 CSS 里带着） */
+  --ec-author: "LIU Haoran (u3686264)";
+  --ec-signature: "EC-COMP1110-G08-u3686264-2026";
 }
 
 body {
