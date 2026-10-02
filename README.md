@@ -221,7 +221,8 @@ empty-classroom/
 │       └── web/                  controllers and DTOs
 │   └── src/main/resources/
 │       ├── application.yml       changeover buffer, opening hours, datasource
-│       └── db/migration/         Flyway V1…V9 (schema, seed, reviews, facilities, sign-up)
+│       └── db/migration/         Flyway migrations: schema, seed, roles, reviews, facilities,
+│                                  sign-up, whole-hour blocks, super administrators
 ├── frontend/                     Vue 3 · Vite · Element Plus · Pinia
 │   └── src/views/                Login.vue · FindRoom.vue · AllRooms.vue (with the room panel) · AdminUpdates.vue
 ├── docs/images/                  screenshots used above

@@ -216,7 +216,7 @@ empty-classroom/
 │       └── web/                  控制器與 DTO
 │   └── src/main/resources/
 │       ├── application.yml       換場餘量、開放時段、資料來源
-│       └── db/migration/         Flyway V1…V9（建表、種子、評價、設施、註冊）
+│       └── db/migration/         Flyway 遷移：建表、種子、角色、評價、設施、註冊、整點塊、超級管理員
 ├── frontend/                     Vue 3 · Vite · Element Plus · Pinia
 │   └── src/views/                Login.vue · FindRoom.vue · AllRooms.vue（含房間詳情面板）· AdminUpdates.vue
 ├── docs/images/                  上面用到的截圖
