@@ -109,11 +109,11 @@ Where the busy blocks come from is the part that matters most:
 
 ## Architecture
 
-![Architecture: one Vue app with two account roles, one service, one database, and the University's timetable as a read-only input](docs/images/architecture.png)
+![Architecture: one Vue app with three account roles, one service, one database, and the University's timetable as a read-only input](docs/images/architecture.png)
 
 Three parts, and the split between them is the design:
 
-1. **One Vue 3 single-page app, two account roles.** The student pages have no write control anywhere; the administrator pages are the same application with extra routes, and what they may do is decided by the server.
+1. **One Vue 3 single-page app, three account roles** (`user` < `admin` < `superadmin`). A student page has no control over occupancy anywhere; an administrator adds *change room use time* and facility editing, and a super administrator adds account management. It is the same application in every case, and what a role may do is decided by the server rather than by hiding buttons.
 2. **One Spring Boot service** that computes availability, applies the rules above, and is the only part of the system that writes anything.
 3. **One PostgreSQL database** holding the timetable, the posted changes, the audit log and the accounts.
 
