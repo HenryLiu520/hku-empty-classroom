@@ -151,8 +151,8 @@
               <el-button v-if="it.mine" link type="danger" size="small" @click="removeReview(it.id)">
                 {{ t('common.delete') }}
               </el-button>
-              <el-button v-else-if="isAdmin" link type="danger" size="small" @click="removeReview(it.id, true)">
-                {{ t('rooms.deleteOthers') }}
+              <el-button v-else-if="auth.isSuper" link type="danger" size="small" @click="removeReview(it.id, true)">
+                {{ t('common.delete') }}
               </el-button>
             </div>
             <div class="rev-body">{{ it.body }}</div>
@@ -318,7 +318,7 @@ async function removeReview(id, others) {
   // 删自己的直接删；删别人的（管理员 / 超级管理员）先确认一下
   if (others) {
     try {
-      await ElMessageBox.confirm(t('rooms.confirmDeleteOthers'), t('rooms.deleteOthers'), {
+      await ElMessageBox.confirm(t('rooms.confirmDeleteOthers'), t('common.delete'), {
         confirmButtonText: t('common.delete'),
         cancelButtonText: t('common.cancel'),
         type: 'warning'

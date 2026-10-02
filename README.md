@@ -39,8 +39,9 @@ a room, and — only if the account is allowed to — change room time or manage
   its real times (`13:00–14:50`), never split into two halves.
 - The room's facilities (seats, sockets, seat type). Administrators can edit them; every save stamps a
   "last verified" date, and a room that has never been verified says so on screen.
-- Reviews: one star rating and one review per person per room. A student can write, change and delete
-  their own; an administrator can remove any of them.
+- Reviews: one star rating and one review per person per room. Anyone can write, change and delete
+  their **own** review; removing someone else's review is a super administrator action, and the
+  server enforces it.
 
 ### 4. Change room use time — administrators
 - **Add use** takes free hours away (an event needs the room); **release** gives hours back.
@@ -66,7 +67,8 @@ a room, and — only if the account is allowed to — change room time or manage
 | Write, change and delete your own review | ✓ | ✓ | ✓ |
 | Lock, release or cancel **your own** changes (whole hours) | — | ✓ | ✓ |
 | Cancel **any** change, including another administrator's | — | — | ✓ |
-| Edit room facilities; remove any review | — | ✓ | ✓ |
+| Edit room facilities | — | ✓ | ✓ |
+| Remove **any** review (your own: everyone) | — | — | ✓ |
 | Manage accounts: create, promote/demote, reset password, delete | — | — | ✓ |
 
 ## Screenshots
@@ -174,7 +176,7 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 ./scripts/test.sh        # needs the database running; the script starts it if needed
 ```
 
-**25 automated tests, all passing** (9 interval-maths, 10 availability/rule, 2 sign-up rule, 4 role and account-management tests). The boundary cases the report leans on:
+**27 automated tests, all passing** (9 interval-maths, 11 availability/rule, 2 sign-up rule, 4 role and account-management, 1 review-permission). The boundary cases the report leans on:
 
 | Case | Test | |
 |---|---|---|
@@ -188,6 +190,7 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 | Non-hour times are rejected | `offHourTimesAreRejected` | ✓ |
 | A two-hour class is one block spanning two hours | `timelineMergesWholeHourBlocks` | ✓ |
 | Only `hku.hk` addresses may register | `RegistrationRulesTest` (2 cases) | ✓ |
+| Only the author — or a super administrator — may delete a review | `ReviewRulesTest` | ✓ |
 | Roles are layered and account management is guarded | `AccountRulesTest` (4 cases) | ✓ |
 
 Tests are `@Transactional` and roll back, so running them never pollutes the demo data.

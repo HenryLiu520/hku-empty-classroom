@@ -61,17 +61,22 @@ public class ReviewService {
         return view(saved, room.getCode(), actor);
     }
 
+    /**
+     * 删评价。
+     * 权限分离：任何人都只能删**自己的**；只有超级管理员能删别人的。
+     */
     @Transactional
-    public void delete(Long id, String actor, boolean admin) {
+    public void delete(Long id, String actor, boolean canDeleteAny) {
         RoomReview r = reviews.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Review not found: " + id));
-        if (!admin && !r.getCreatedBy().equals(actor)) {
+        if (!canDeleteAny && !r.getCreatedBy().equals(actor)) {
             throw new IllegalArgumentException("You can only delete your own review");
         }
         String owner = r.getCreatedBy();
         reviews.delete(r);
         audit.save(new AuditEntry("DELETE_REVIEW", "room_reviews", id, actor,
-                "deleted review by %s%s".formatted(owner, admin && !owner.equals(actor) ? " (as admin)" : "")));
+                "deleted review by %s%s".formatted(owner,
+                        canDeleteAny && !owner.equals(actor) ? " (as superadmin)" : "")));
     }
 
     // ---------------------------------------------------------------- 读
