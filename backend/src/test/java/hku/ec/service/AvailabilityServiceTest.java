@@ -167,6 +167,29 @@ class AvailabilityServiceTest {
         assertEquals("USE", updateService.create(whole, "tester").getChangeType().name());
     }
 
+    @Test
+    @DisplayName("8. 学校课表优先级最高：管理员不能对课表里的课提交任何变更")
+    void adminCannotChangeClassTime() {
+        slot("14:00", "15:00");
+
+        Dtos.UpdateRequest use = new Dtos.UpdateRequest(room.getId(), "USE", date.toString(),
+                "14:00", "15:00", "unit test", null);
+        IllegalArgumentException e1 = assertThrows(IllegalArgumentException.class,
+                () -> updateService.create(use, "admin1"), "课表里已有课，USE 应被拒绝");
+        assertTrue(e1.getMessage().contains("Timetable has priority"), "实际：" + e1.getMessage());
+
+        Dtos.UpdateRequest release = new Dtos.UpdateRequest(room.getId(), "RELEASE", date.toString(),
+                "13:00", "16:00", "unit test", null);
+        IllegalArgumentException e2 = assertThrows(IllegalArgumentException.class,
+                () -> updateService.create(release, "admin1"), "跨越课程时段，RELEASE 也应被拒绝");
+        assertTrue(e2.getMessage().contains("Timetable has priority"), "实际：" + e2.getMessage());
+
+        Dtos.UpdateRequest freeTime = new Dtos.UpdateRequest(room.getId(), "USE", date.toString(),
+                "16:00", "17:00", "unit test", null);
+        assertEquals("USE", updateService.create(freeTime, "admin1").getChangeType().name(),
+                "课表没课的时间仍然可以正常添加使用");
+    }
+
     // ---------------------------------------------------------------- helpers
 
     private void slot(String start, String end) {

@@ -1,9 +1,11 @@
 package hku.ec.service;
 
 import hku.ec.domain.AuditEntry;
+import hku.ec.domain.ClassSlot;
 import hku.ec.domain.Room;
 import hku.ec.domain.RoomUpdate;
 import hku.ec.repo.AuditRepository;
+import hku.ec.repo.ClassSlotRepository;
 import hku.ec.repo.RoomRepository;
 import hku.ec.repo.RoomUpdateRepository;
 import hku.ec.web.Dtos;
@@ -27,11 +29,14 @@ public class UpdateService {
 
     private final RoomUpdateRepository updates;
     private final RoomRepository rooms;
+    private final ClassSlotRepository slots;
     private final AuditRepository audit;
 
-    public UpdateService(RoomUpdateRepository updates, RoomRepository rooms, AuditRepository audit) {
+    public UpdateService(RoomUpdateRepository updates, RoomRepository rooms,
+                         ClassSlotRepository slots, AuditRepository audit) {
         this.updates = updates;
         this.rooms = rooms;
+        this.slots = slots;
         this.audit = audit;
     }
 
@@ -54,6 +59,22 @@ public class UpdateService {
             type = RoomUpdate.ChangeType.valueOf(req.changeType());
         } catch (Exception e) {
             throw new IllegalArgumentException("Unknown change type: " + req.changeType());
+        }
+
+        // 学校课表优先级最高：管理员只能在课表显示"没课"的时间上添加使用或释放时间。
+        // 课表里已有的课，这里直接拒绝，而不是默默接受一个不会生效的变更。
+        int dayOfWeek = date.getDayOfWeek().getValue();
+        int reqStart = start.getHour() * 60 + start.getMinute();
+        int reqEnd = end.getHour() * 60 + end.getMinute();
+        for (ClassSlot s : slots.findByRoomIdAndDayOfWeekOrderByStartTimeAsc(room.getId(), dayOfWeek)) {
+            int classStart = s.getStartTime().getHour() * 60 + s.getStartTime().getMinute();
+            int classEnd = s.getEndTime().getHour() * 60 + s.getEndTime().getMinute();
+            if (reqStart < classEnd && classStart < reqEnd) {
+                throw new IllegalArgumentException("Timetable has priority: " + room.getCode()
+                        + " already has a class from " + s.getStartTime().format(MIN) + " to "
+                        + s.getEndTime().format(MIN) + " that day; a change can only be posted for time "
+                        + "the University timetable shows as free");
+            }
         }
 
         RoomUpdate u = new RoomUpdate();

@@ -20,10 +20,12 @@ public class ApiExceptionHandler {
                 .body(new Dtos.ApiError("BAD_DATE", "Use yyyy-MM-dd for date and HH:mm for time"));
     }
 
-    /** 时间不符合"整小时"口径，或其它参数取值问题 */
+    /** 时间不符合"整小时"口径，或不满足学校课表优先规则等取值问题 */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Dtos.ApiError> badValue(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(new Dtos.ApiError("BAD_TIME", e.getMessage()));
+        String msg = e.getMessage() == null ? "" : e.getMessage();
+        String code = msg.startsWith("Timetable has priority") ? "TIMETABLE_PRIORITY" : "BAD_TIME";
+        return ResponseEntity.badRequest().body(new Dtos.ApiError(code, msg));
     }
 
     @ExceptionHandler(Exception.class)

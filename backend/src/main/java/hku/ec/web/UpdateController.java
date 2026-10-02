@@ -42,7 +42,9 @@ public class UpdateController {
             updates.create(req, s.username());
             return ResponseEntity.ok(updates.mine(s.username()));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new Dtos.ApiError("BAD_REQUEST", e.getMessage()));
+            String msg = e.getMessage() == null ? "" : e.getMessage();
+            String code = msg.startsWith("Timetable has priority") ? "TIMETABLE_PRIORITY" : "BAD_REQUEST";
+            return ResponseEntity.badRequest().body(new Dtos.ApiError(code, msg));
         }
     }
 
