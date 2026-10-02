@@ -86,21 +86,21 @@
                           style="width: 150px; margin-left: 8px" @change="loadTimeline" />
         </h4>
         <el-alert v-if="timelineError" type="error" :closable="false" show-icon :title="timelineError" class="mb" />
-        <div class="tl">
+        <div class="tl-grid" :style="gridStyle">
           <div v-for="(s, i) in (timeline ? timeline.segments : [])" :key="i"
-               :class="['seg', s.type === 'BUSY' ? 'busy' : s.type === 'FREE' ? 'free' : 'buf']"
-               :style="{ width: s.widthPct + '%' }"
-               :title="s.type + ' ' + s.start + ' - ' + s.end">
-            <span v-if="s.type === 'FREE' && s.widthPct > 8">free</span>
+               :class="['cell', s.type === 'BUSY' ? 'busy' : s.type === 'FREE' ? 'free' : 'buf']"
+               :title="(s.type === 'BUSY' ? 'In use ' : s.type === 'BUFFER' ? 'Changeover ' : 'Free ') + s.from + ' – ' + s.to">
+            <span>{{ s.label }}</span>
           </div>
         </div>
-        <div class="ticks">
-          <span v-for="t in ticks" :key="t">{{ t }}</span>
+        <div class="tl-axis" :style="gridStyle">
+          <span v-for="(s, i) in (timeline ? timeline.segments : [])" :key="i">{{ i % 2 === 0 ? s.hour : '' }}</span>
         </div>
+        <p class="tl-note">{{ tlNote }}</p>
         <div class="legend">
-          <span><i class="sw busy"></i>Class (from timetable)</span>
+          <span><i class="sw busy"></i>In use (class or posted change)</span>
           <span><i class="sw free"></i>Free</span>
-          <span><i class="sw buf"></i>Buffer, not offered</span>
+          <span><i class="sw buf"></i>Changeover margin, not offered</span>
         </div>
 
         <!-- ------------------------------------------------ 学生评价 -->
@@ -178,9 +178,9 @@ const summary = ref({})
 const today = new Date().toISOString().slice(0, 10)
 const date = ref(today)
 const timeline = ref(null)
+const gridStyle = ref('')
+const tlNote = ref('')
 const timelineError = ref('')
-const ticks = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00']
-
 const reviews = ref(null)
 const reviewSort = ref('time')
 const reviewError = ref('')
@@ -249,6 +249,15 @@ async function loadTimeline() {
   try {
     const { data } = await api.get(`/rooms/${selected.value.code}/timeline`, { params: { date: date.value } })
     timeline.value = data
+    // 一格 = 一个整点：格子等宽排列，格子里写真实时间（下课 11:50 就写 11:50）
+    const segs = data.segments || []
+    gridStyle.value = 'grid-template-columns: repeat(' + Math.max(1, segs.length) + ', 1fr)'
+    const busy = segs.filter(s => s.type === 'BUSY' && s.label).map(s => s.label)
+    const buf = segs.filter(s => s.type === 'BUFFER' && s.label).map(s => s.label)
+    tlNote.value = (!busy.length && !buf.length)
+      ? 'No classes and no posted changes on this day — free all day.'
+      : [busy.length ? 'In use ' + busy.join(', ') : '',
+         buf.length ? 'changeover ' + buf.join(', ') : ''].filter(Boolean).join(' · ')
   } catch (e) {
     timelineError.value = 'Could not load the timetable for this room: ' + (e.response?.status || e.message)
   }
@@ -326,12 +335,15 @@ async function refreshAll() {
 .rev-top { display: flex; align-items: center; gap: 10px; }
 .rev-meta { color: #8A94A6; font-size: 12px; }
 .rev-body { margin-top: 4px; color: #303133; font-size: 13px; line-height: 1.6; }
-.tl { display: flex; height: 28px; border: 1px solid #EBEEF5; border-radius: 4px; overflow: hidden; }
-.seg { height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; }
+.tl-grid { display: grid; gap: 2px; }
+.cell { height: 30px; border-radius: 3px; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 10px; overflow: hidden; white-space: nowrap; }
 .busy { background: #5B8FF9; }
 .free { background: #7BC96F; }
-.buf { background: repeating-linear-gradient(45deg, #E4E7ED, #E4E7ED 4px, #F5F7FA 4px, #F5F7FA 8px); }
-.ticks { display: flex; justify-content: space-between; color: #8A94A6; font-size: 11px; margin-top: 5px; }
+.buf { background: repeating-linear-gradient(45deg, #E4E7ED, #E4E7ED 4px, #F5F7FA 4px, #F5F7FA 8px); color: #8A94A6; }
+.tl-axis { display: grid; gap: 2px; margin-top: 4px; color: #8A94A6; font-size: 10px; }
+.tl-axis span { overflow: hidden; white-space: nowrap; }
+.tl-note { margin: 8px 0 0; color: #606266; font-size: 12px; }
 .legend { display: flex; gap: 18px; margin-top: 10px; color: #606266; font-size: 12px; }
 .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
 </style>

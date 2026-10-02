@@ -119,7 +119,13 @@ public class AvailabilityService {
         }
     }
 
-    /** 时间轴：一天从开放到关闭切成 BUSY / BUFFER / FREE 片段 */
+    /**
+     * 时间轴：按整点切成方格，一格 = 一个小时（08:00–09:00、09:00–10:00 …）。
+     *
+     * 为什么按整点切：一节课 10:00–11:50，下课时间是 :50，如果按真实长度画，
+     * 11:50 会在格子里剩一条难看的细缝。按整点切、把这一节算进 10:00 和 11:00 两格，
+     * 格子是整齐的，而格子里面写的是真实时间（"11:00–11:50"），数字上照样是几点 50。
+     */
     public List<Dtos.Segment> timeline(LocalDate date, String roomCode) {
         Room room = roomRepo.findByCode(roomCode)
                 .orElseThrow(() -> new IllegalArgumentException("unknown room: " + roomCode));
@@ -130,50 +136,42 @@ public class AvailabilityService {
         List<int[]> busy = busyIntervals(room.getId(), date);
 
         List<Dtos.Segment> out = new ArrayList<>();
-        // BUFFER 先画，BUSY 再覆盖，FREE 由补集补上；最后统一排序
-        List<int[]> marks = new ArrayList<>();   // {start, end, type} type: 0=BUFFER 1=BUSY
-        for (int[] b : busy) {
-            int bs = Math.max(b[0] - buffer, openStart);
-            int be = Math.min(b[1] + buffer, openEnd);
-            if (bs < b[0]) marks.add(new int[]{bs, b[0], 0});
-            if (b[1] < be) marks.add(new int[]{b[1], be, 0});
-            marks.add(new int[]{Math.max(b[0], openStart), Math.min(b[1], openEnd), 1});
-        }
-        marks.sort(Comparator.comparingInt(m -> m[0]));
+        for (int hour = openStart; hour < openEnd; hour += 60) {
+            int cellEnd = Math.min(hour + 60, openEnd);
+            String type = "FREE";
+            int markStart = -1, markEnd = -1;
 
-        double total = Math.max(1, openEnd - openStart);
-        int cursor = openStart;
-        List<int[]> merged = mergeMarks(marks);   // 合并重叠，BUSY 优先
-        for (int[] m : merged) {
-            if (m[0] > cursor) {
-                out.add(seg("FREE", cursor, m[0], total));
+            // 1) 先看真实占用（课表 / 发布的使用）
+            for (int[] b : busy) {
+                int s = Math.max(b[0], hour), e = Math.min(b[1], cellEnd);
+                if (s < e) {
+                    type = "BUSY";
+                    markStart = markStart < 0 ? s : Math.min(markStart, s);
+                    markEnd = Math.max(markEnd, e);
+                }
             }
-            out.add(seg(m[2] == 1 ? "BUSY" : "BUFFER", Math.max(m[0], cursor), m[1], total));
-            cursor = Math.max(cursor, m[1]);
-        }
-        if (cursor < openEnd) {
-            out.add(seg("FREE", cursor, openEnd, total));
+            // 2) 再看换场余量（只有余量盖到这一格时才算 BUFFER）
+            if ("FREE".equals(type)) {
+                for (int[] b : busy) {
+                    int s = Math.max(b[0] - buffer, hour), e = Math.min(b[1] + buffer, cellEnd);
+                    if (s < e) {
+                        type = "BUFFER";
+                        markStart = markStart < 0 ? s : Math.min(markStart, s);
+                        markEnd = Math.max(markEnd, e);
+                    }
+                }
+            }
+            if (markStart < 0) {           // 整格都空
+                markStart = hour;
+                markEnd = cellEnd;
+            }
+            out.add(new Dtos.Segment(mm(hour), type, mm(markStart), mm(markEnd),
+                    "FREE".equals(type) ? "" : mm(markStart) + "\u2013" + mm(markEnd)));
         }
         return out;
     }
 
     // --------------------------------------------------------------- internal
-
-    /** 合并片段：同区间内 BUSY 优先于 BUFFER */
-    static List<int[]> mergeMarks(List<int[]> marks) {
-        List<int[]> out = new ArrayList<>();
-        for (int[] m : marks) {
-            if (m[0] >= m[1]) continue;
-            if (!out.isEmpty() && m[0] <= out.get(out.size() - 1)[1]) {
-                int[] last = out.get(out.size() - 1);
-                last[1] = Math.max(last[1], m[1]);
-                last[2] = Math.max(last[2], m[2]);   // BUSY 覆盖 BUFFER
-            } else {
-                out.add(new int[]{m[0], m[1], m[2]});
-            }
-        }
-        return out;
-    }
 
     private Dtos.RoomAvailability evaluate(Room room, LocalTime from, int minutes,
                                           int openStart, int openEnd, int buffer,
@@ -332,10 +330,6 @@ public class AvailabilityService {
         }
         if (cursor < hi) out.add(new int[]{cursor, hi});
         return out;
-    }
-
-    private static Dtos.Segment seg(String type, int s, int e, double total) {
-        return new Dtos.Segment(type, mm(s), mm(e), Math.round((e - s) / total * 10000.0) / 100.0);
     }
 
     private static int longest(List<Dtos.Window> ws) {

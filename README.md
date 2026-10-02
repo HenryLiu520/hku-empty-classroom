@@ -1,6 +1,6 @@
 # Empty Classroom Plan
 
-**English** · [简体中文](README.zh-CN.md)
+**English** · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md)
 
 > A web app that answers one question about HKU teaching rooms: **which rooms are free between classes, right now?**
 > Vue 3 + Spring Boot + PostgreSQL · COMP1110 Group 08 (HKU)
@@ -20,7 +20,7 @@ This project joins the two things that decide whether a room is usable — the *
 ## What it does
 
 - **Search** — pick a day, a building and a time window (`14:00 → 15:50`) and see which rooms are free for all of it. Each result says whether the room is free now, free later, or in use.
-- **Every room has a page** — its timetable for the day as a busy/free bar, its facilities (seats, sockets, seat type), and reviews from other students.
+- **Every room has a page** — its timetable for the day as an hour-by-hour grid (one cell per hour, with the real times written inside, so a class ending at `11:50` reads `11:50`), its facilities (seats, sockets, seat type), and reviews from other students.
 - **All rooms** — the full room list with sorting, independent of any time filter.
 - **Reviews** — one star rating per person per room; administrators can remove any review, and removals are logged.
 - **Facility edits** — seats / sockets / seat type are editable **only by administrators**; each save stamps a "last verified" time, and rooms that have never been verified say so on screen.
