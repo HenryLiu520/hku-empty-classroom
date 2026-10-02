@@ -6,7 +6,7 @@ the interface only follows a common sidebar-dashboard layout idiom.
 
 | Component | Licence |
 |---|---|
-| Vue 3, Vite, Element Plus, Pinia, axios, vue-router | MIT |
+| Vue 3, Vite, Element Plus, Pinia, axios, vue-router, vue-i18n | MIT |
 | Spring Boot (incl. starters) | Apache-2.0 |
 | Flyway | Apache-2.0 |
 | PostgreSQL server | PostgreSQL License |

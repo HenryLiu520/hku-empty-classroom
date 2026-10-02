@@ -3,115 +3,124 @@
     <el-card shadow="never" class="mb">
       <template #header>
         <div class="card-head">
-          <span>Change room use time</span>
-          <span class="hint">Managers may add or release a room's use time. Every change is logged and expires.</span>
+          <span>{{ t('nav.manage') }}</span>
+          <span class="hint">{{ t('manage.subtitle') }}</span>
         </div>
       </template>
 
       <el-form label-width="150px" style="max-width: 660px">
-        <el-form-item label="Room">
-          <el-select v-model="form.roomId" placeholder="Choose a room" style="width: 100%">
-            <el-option v-for="r in rooms" :key="r.id" :label="`${r.code} (${r.building} / ${r.floor})`" :value="r.id" />
+        <el-form-item :label="t('manage.room')">
+          <el-select v-model="form.roomId" :placeholder="t('manage.chooseRoom')" style="width: 100%">
+            <el-option v-for="r in rooms" :key="r.id" :value="r.id"
+                       :label="`${r.code} (${r.building} / ${r.floor})`" />
           </el-select>
         </el-form-item>
 
-        <el-form-item label="What happens">
+        <el-form-item :label="t('manage.whatHappens')">
           <el-radio-group v-model="form.changeType">
-            <el-radio value="USE">Add use</el-radio>
-            <el-radio value="RELEASE">Release</el-radio>
+            <el-radio value="USE">{{ t('manage.addUse') }}</el-radio>
+            <el-radio value="RELEASE">{{ t('manage.release') }}</el-radio>
           </el-radio-group>
           <div class="subhint">
-            <b>Add use</b> takes free hours away, for example an event needs the room.<br />
-            <b>Release</b> gives hours back, for example a class is cancelled.
+            <b>{{ t('manage.addUse') }}</b> {{ t('manage.addUseHint') }}<br />
+            <b>{{ t('manage.release') }}</b> {{ t('manage.releaseHint') }}
           </div>
         </el-form-item>
 
-        <el-form-item label="Date">
+        <el-form-item :label="t('manage.date')">
           <el-date-picker v-model="form.date" type="date" value-format="YYYY-MM-DD" style="width: 100%" />
         </el-form-item>
 
-        <el-form-item label="From (hour)">
+        <el-form-item :label="t('manage.fromHour')">
           <el-time-select v-model="form.start" start="08:00" step="01:00" end="21:00" style="width: 100%" />
         </el-form-item>
-        <el-form-item label="To (hour)">
+        <el-form-item :label="t('manage.toHour')">
           <el-time-select v-model="form.end" start="08:50" step="01:00" end="21:50" style="width: 100%" />
         </el-form-item>
 
-        <el-form-item label="Reason">
-          <el-input v-model="form.reason" type="textarea" :rows="2" placeholder="Department meeting, about 25 people" />
+        <el-form-item :label="t('manage.reason')">
+          <el-input v-model="form.reason" type="textarea" :rows="2"
+                    :placeholder="t('manage.reasonPlaceholder')" />
         </el-form-item>
 
-        <el-form-item label="Expires at">
+        <el-form-item :label="t('manage.expiresAt')">
           <el-date-picker v-model="form.expiresAt" type="datetime" value-format="YYYY-MM-DD HH:mm"
-                          placeholder="Leave empty to keep until someone cancels it" style="width: 100%" />
+                          :placeholder="t('manage.expiresPlaceholder')" style="width: 100%" />
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" :loading="saving" @click="submit">Submit change</el-button>
-          <el-button @click="loadAll">Refresh</el-button>
+          <el-button type="primary" :loading="saving" @click="submit">{{ t('manage.submit') }}</el-button>
+          <el-button @click="loadAll">{{ t('common.refresh') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
 
     <el-card shadow="never">
       <el-tabs v-model="tab">
-        <el-tab-pane label="My changes" name="mine">
+        <el-tab-pane :label="t('manage.tabMine')" name="mine">
           <el-table :data="mine" v-loading="loading">
-            <el-table-column prop="roomCode" label="Room" width="120" />
-            <el-table-column label="Change" width="200">
+            <el-table-column prop="roomCode" :label="t('manage.room')" width="120" />
+            <el-table-column :label="t('manage.colChange')" width="200">
               <template #default="{ row }">{{ label(row.changeType) }}</template>
             </el-table-column>
-            <el-table-column label="Date" width="120" prop="date" />
-            <el-table-column label="Interval" width="140">
+            <el-table-column :label="t('manage.date')" width="120" prop="date" />
+            <el-table-column :label="t('manage.colInterval')" width="140">
               <template #default="{ row }"><span class="mono">{{ row.start }} - {{ row.end }}</span></template>
             </el-table-column>
-            <el-table-column prop="reason" label="Reason" min-width="180" />
-            <el-table-column label="State" width="110">
+            <el-table-column prop="reason" :label="t('manage.reason')" min-width="180" />
+            <el-table-column :label="t('manage.colState')" width="110">
               <template #default="{ row }">
-                <el-tag :type="row.state === 'Active' ? 'success' : 'info'" effect="light">{{ row.state }}</el-tag>
+                <el-tag :type="row.state === 'Active' ? 'success' : 'info'" effect="light">
+                  {{ stateText(row.state) }}
+                </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="Action" width="100">
+            <el-table-column :label="t('manage.colAction')" width="110">
               <template #default="{ row }">
-                <el-button link type="primary" :disabled="row.state !== 'Active'" @click="cancel(row)">Cancel</el-button>
+                <el-button link type="primary" :disabled="row.state !== 'Active'" @click="cancel(row)">
+                  {{ t('manage.cancelAction') }}
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
         </el-tab-pane>
 
-        <el-tab-pane label="All changes from every manager" name="all">
-          <el-alert type="info" :closable="false" show-icon class="mb-sm"
-                    title="A manager can manage any change, not only their own. Nothing is deleted: cancelling only makes a change inactive." />
+        <el-tab-pane :label="t('manage.tabAll')" name="all">
+          <el-alert type="info" :closable="false" show-icon class="mb-sm" :title="t('manage.allManagersHint')" />
           <el-table :data="all" v-loading="loading">
-            <el-table-column prop="roomCode" label="Room" width="120" />
-            <el-table-column label="Change" width="200">
+            <el-table-column prop="roomCode" :label="t('manage.room')" width="120" />
+            <el-table-column :label="t('manage.colChange')" width="200">
               <template #default="{ row }">{{ label(row.changeType) }}</template>
             </el-table-column>
-            <el-table-column label="Date" width="120" prop="date" />
-            <el-table-column label="Interval" width="140">
+            <el-table-column :label="t('manage.date')" width="120" prop="date" />
+            <el-table-column :label="t('manage.colInterval')" width="140">
               <template #default="{ row }"><span class="mono">{{ row.start }} - {{ row.end }}</span></template>
             </el-table-column>
-            <el-table-column prop="createdBy" label="Submitted by" width="130" />
-            <el-table-column prop="reason" label="Reason" min-width="160" />
-            <el-table-column label="State" width="110">
+            <el-table-column prop="createdBy" :label="t('manage.colSubmittedBy')" width="130" />
+            <el-table-column prop="reason" :label="t('manage.reason')" min-width="160" />
+            <el-table-column :label="t('manage.colState')" width="110">
               <template #default="{ row }">
-                <el-tag :type="row.state === 'Active' ? 'success' : 'info'" effect="light">{{ row.state }}</el-tag>
+                <el-tag :type="row.state === 'Active' ? 'success' : 'info'" effect="light">
+                  {{ stateText(row.state) }}
+                </el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="Action" width="100">
+            <el-table-column :label="t('manage.colAction')" width="110">
               <template #default="{ row }">
-                <el-button link type="primary" :disabled="row.state !== 'Active'" @click="cancel(row)">Cancel</el-button>
+                <el-button link type="primary" :disabled="row.state !== 'Active'" @click="cancel(row)">
+                  {{ t('manage.cancelAction') }}
+                </el-button>
               </template>
             </el-table-column>
           </el-table>
         </el-tab-pane>
 
-        <el-tab-pane label="Audit log" name="audit">
+        <el-tab-pane :label="t('manage.tabAudit')" name="audit">
           <el-table :data="auditRows" v-loading="loading">
-            <el-table-column prop="createdAt" label="When" width="150" />
-            <el-table-column prop="action" label="Action" width="160" />
-            <el-table-column prop="actor" label="Actor" width="120" />
-            <el-table-column prop="detail" label="Detail" min-width="240" />
+            <el-table-column prop="createdAt" :label="t('manage.colWhen')" width="150" />
+            <el-table-column prop="action" :label="t('manage.colAction')" width="170" />
+            <el-table-column prop="actor" :label="t('manage.colActor')" width="120" />
+            <el-table-column prop="detail" :label="t('manage.colDetail')" min-width="240" />
           </el-table>
         </el-tab-pane>
       </el-tabs>
@@ -121,8 +130,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import api from '../api'
+import { useApiError } from '../i18n/apiError'
+
+const { t } = useI18n()
+const apiError = useApiError()
 
 const rooms = ref([])
 const mine = ref([])
@@ -148,7 +162,7 @@ async function loadAll() {
     rooms.value = r.data
     if (!form.value.roomId && r.data.length) form.value.roomId = r.data[0].id
   } catch (e) {
-    ElMessage.error('Could not load the room list: ' + (e.response?.status || e.message))
+    ElMessage.error(t('manage.roomListFailed', { status: e.response?.status || e.message }))
   }
   try {
     const [m, a, lg] = await Promise.all([
@@ -158,8 +172,7 @@ async function loadAll() {
     all.value = a.data
     auditRows.value = lg.data
   } catch (e) {
-    ElMessage.error(e.response?.data?.message
-      || 'Your administrator session is no longer valid — sign in again.')
+    ElMessage.error(apiError(e, 'manage.sessionExpired'))
   } finally {
     loading.value = false
   }
@@ -167,16 +180,16 @@ async function loadAll() {
 
 async function submit() {
   if (!form.value.roomId || !form.value.start || !form.value.end) {
-    ElMessage.warning('Room, start and end time are required')
+    ElMessage.warning(t('manage.needFields'))
     return
   }
   saving.value = true
   try {
     await api.post('/updates', form.value)
-    ElMessage.success('Change saved and applied')
+    ElMessage.success(t('manage.saved'))
     await loadAll()
   } catch (e) {
-    ElMessage.error(e.response?.data?.message || 'Failed to save')
+    ElMessage.error(apiError(e, 'manage.failed'))
   } finally {
     saving.value = false
   }
@@ -185,15 +198,19 @@ async function submit() {
 async function cancel(row) {
   try {
     await api.delete(`/updates/${row.id}`)
-    ElMessage.success('Change cancelled, the time is released')
+    ElMessage.success(t('manage.cancelled'))
     await loadAll()
   } catch (e) {
-    ElMessage.error(e.response?.data?.message || 'Failed to cancel')
+    ElMessage.error(apiError(e, 'manage.failedCancel'))
   }
 }
 
-function label(t) {
-  return ({ USE: 'Add use', RELEASE: 'Release' })[t] || t
+function label(type) {
+  return ({ USE: t('manage.addUse'), RELEASE: t('manage.release') })[type] || type
+}
+
+function stateText(state) {
+  return ({ Active: t('manage.stateActive'), Expired: t('manage.stateExpired') })[state] || state
 }
 </script>
 

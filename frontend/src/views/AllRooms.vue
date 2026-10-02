@@ -4,12 +4,12 @@
     <el-card shadow="never" class="rooms-panel">
       <template #header>
         <div class="card-head">
-          <span>All rooms <b>{{ rooms.length }}</b></span>
-          <span class="hint">every room, not filtered by time</span>
+          <span>{{ t('rooms.title') }} <b>{{ rooms.length }}</b></span>
+          <span class="hint">{{ t('rooms.subtitle') }}</span>
         </div>
       </template>
 
-      <el-input v-model="filter" placeholder="Filter room code or building" size="small" clearable class="mb-sm" />
+      <el-input v-model="filter" :placeholder="t('rooms.filterPlaceholder')" size="small" clearable class="mb-sm" />
 
       <div class="room-list" v-loading="loadingRooms">
         <div v-for="r in filteredRooms" :key="r.id" class="room-item"
@@ -19,11 +19,11 @@
             <span class="ri-type">{{ r.roomType }}</span>
           </div>
           <div class="ri-meta">
-            {{ r.building }} / {{ r.floor }} &middot; {{ r.capacity }} seats
+            {{ r.building }} / {{ r.floor }} &middot; {{ r.capacity }} {{ t('find.colSeats') }}
             <span v-if="summary[r.code]" class="ri-stars">&middot; ★ {{ summary[r.code].average }} ({{ summary[r.code].count }})</span>
           </div>
         </div>
-        <div v-if="!filteredRooms.length" class="muted small">No room matches that filter.</div>
+        <div v-if="!filteredRooms.length" class="muted small">{{ t('rooms.noMatch') }}</div>
       </div>
     </el-card>
 
@@ -32,56 +32,60 @@
       <el-card v-if="selected" shadow="never" class="mb">
         <template #header>
           <div class="card-head">
-            <span>Room <b>{{ selected.code }}</b> &middot; {{ selected.building }} / {{ selected.floor }}</span>
-            <span class="hint">attributes come from the room record; the timetable is computed from the timetable plus reported changes</span>
+            <span>{{ t('rooms.roomLabel') }} <b>{{ selected.code }}</b> &middot; {{ selected.building }} / {{ selected.floor }}</span>
+            <span class="hint">{{ t('rooms.attributesHint') }}</span>
           </div>
         </template>
 
         <el-descriptions :column="4" border size="small">
-          <el-descriptions-item label="Seats">{{ selected.capacity }}</el-descriptions-item>
-          <el-descriptions-item label="Type">{{ selected.roomType }}</el-descriptions-item>
-          <el-descriptions-item label="Building">{{ selected.building }}</el-descriptions-item>
-          <el-descriptions-item label="Floor">{{ selected.floor }}</el-descriptions-item>
+          <el-descriptions-item :label="t('find.colSeats')">{{ selected.capacity }}</el-descriptions-item>
+          <el-descriptions-item :label="t('find.colType')">{{ selected.roomType }}</el-descriptions-item>
+          <el-descriptions-item :label="t('find.building')">{{ selected.building }}</el-descriptions-item>
+          <el-descriptions-item :label="t('common.floor')">{{ selected.floor }}</el-descriptions-item>
         </el-descriptions>
 
         <h4 class="sec">
-          Facilities
-          <span v-if="selected.facilitiesVerifiedAt" class="hint">&middot; last verified {{ selected.facilitiesVerifiedAt }}</span>
-          <span v-else class="hint">&middot; <b>sample data, not verified yet</b></span>
+          {{ t('rooms.facilities') }}
+          <span v-if="selected.facilitiesVerifiedAt" class="hint">
+            &middot; {{ t('rooms.lastVerified', { when: selected.facilitiesVerifiedAt }) }}
+          </span>
+          <span v-else class="hint">&middot; <b>{{ t('rooms.sampleData') }}</b></span>
           <el-button v-if="isAdmin" link type="primary" size="small" style="margin-left: 8px" @click="toggleEdit">
-            {{ editing ? 'Cancel' : 'Edit' }}
+            {{ editing ? t('common.cancel') : t('common.edit') }}
           </el-button>
         </h4>
 
         <el-descriptions v-if="!editing" :column="3" border size="small">
-          <el-descriptions-item label="Seats total">{{ selected.capacity }}</el-descriptions-item>
-          <el-descriptions-item label="Sockets">
+          <el-descriptions-item :label="t('rooms.seatsTotal')">{{ selected.capacity }}</el-descriptions-item>
+          <el-descriptions-item :label="t('rooms.sockets')">
             <span v-if="selected.sockets === null || selected.sockets === undefined" class="muted">—</span>
-            <span v-else>{{ selected.sockets ? 'Yes' : 'No' }}</span>
+            <span v-else>{{ selected.sockets ? t('common.yes') : t('common.no') }}</span>
           </el-descriptions-item>
-          <el-descriptions-item label="Seat type">{{ selected.seatType || '—' }}</el-descriptions-item>
+          <el-descriptions-item :label="t('rooms.seatType')">{{ selected.seatType || '—' }}</el-descriptions-item>
         </el-descriptions>
 
-        <el-form v-else label-width="110px" class="fac-form">
-          <el-form-item label="Seats total">
+        <el-form v-else label-width="130px" class="fac-form">
+          <el-form-item :label="t('rooms.seatsTotal')">
             <el-input-number v-model="form.capacity" :min="1" :max="500" size="small" />
           </el-form-item>
-          <el-form-item label="Sockets">
-            <el-switch v-model="form.sockets" active-text="Yes" inactive-text="No" />
+          <el-form-item :label="t('rooms.sockets')">
+            <el-switch v-model="form.sockets" :active-text="t('common.yes')" :inactive-text="t('common.no')" />
           </el-form-item>
-          <el-form-item label="Seat type">
+          <el-form-item :label="t('rooms.seatType')">
             <el-input v-model="form.seatType" size="small" maxlength="60" style="width: 300px"
-                      placeholder="Fixed rows / Long shared table / Individual desks" />
+                      :placeholder="t('rooms.seatTypePlaceholder')" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" size="small" :loading="savingFacilities" @click="saveFacilities">Save</el-button>
-            <el-button size="small" @click="editing = false">Cancel</el-button>
-            <span class="hint" style="margin-left: 10px">Saving stamps today as the verified date and is recorded in the audit log.</span>
+            <el-button type="primary" size="small" :loading="savingFacilities" @click="saveFacilities">
+              {{ t('common.save') }}
+            </el-button>
+            <el-button size="small" @click="editing = false">{{ t('common.cancel') }}</el-button>
+            <span class="hint" style="margin-left: 10px">{{ t('rooms.saveHint') }}</span>
           </el-form-item>
         </el-form>
 
         <h4 class="sec">
-          Timetable
+          {{ t('rooms.timetable') }}
           <el-date-picker v-model="date" type="date" value-format="YYYY-MM-DD" size="small"
                           style="width: 150px; margin-left: 8px" @change="loadTimeline" />
         </h4>
@@ -90,7 +94,8 @@
           <div v-for="(s, i) in (timeline ? timeline.segments : [])" :key="i"
                :class="['cell', s.type === 'BUSY' ? 'busy' : 'free']"
                :style="s.span > 1 ? { gridColumn: 'span ' + s.span } : null"
-               :title="(s.type === 'BUSY' ? 'In use ' : 'Free ') + s.from + ' – ' + s.to">
+               :title="s.type === 'BUSY' ? t('rooms.inUseTip', { from: s.from, to: s.to })
+                                         : t('rooms.freeTip', { from: s.from, to: s.to })">
             <span>{{ s.label }}</span>
           </div>
         </div>
@@ -99,40 +104,40 @@
         </div>
         <p class="tl-note">{{ tlNote }}</p>
         <div class="legend">
-          <span><i class="sw busy"></i>In use (class or posted change, whole hours)</span>
-          <span><i class="sw free"></i>Free</span>
+          <span><i class="sw busy"></i>{{ t('find.legendInUse') }}</span>
+          <span><i class="sw free"></i>{{ t('find.legendFree') }}</span>
         </div>
 
         <!-- ------------------------------------------------ 学生评价 -->
         <h4 class="sec">
-          Student reviews
+          {{ t('rooms.reviews') }}
           <span v-if="reviews" class="hint">
-            &middot; <b>★ {{ reviews.average }}</b> from {{ reviews.count }} review{{ reviews.count === 1 ? '' : 's' }}
+            &middot; {{ t('rooms.ratingFrom', { avg: reviews.average, n: reviews.count }, reviews.count) }}
           </span>
         </h4>
 
-        <el-form label-width="90px" class="review-form">
-          <el-form-item label="Your rating">
+        <el-form label-width="130px" class="review-form">
+          <el-form-item :label="t('rooms.yourRating')">
             <el-rate v-model="myRating" :max="5" show-score score-template="{value} / 5" />
           </el-form-item>
-          <el-form-item label="Your review">
+          <el-form-item :label="t('rooms.yourReview')">
             <el-input v-model="myBody" type="textarea" :rows="3" maxlength="600" show-word-limit
-                      placeholder="What is it like to study here? Noise, sockets, seating, light…" />
+                      :placeholder="t('rooms.reviewPlaceholder')" />
           </el-form-item>
           <el-form-item>
             <el-button type="primary" :loading="savingReview" @click="submitReview">
-              {{ myExistingId ? 'Update your review' : 'Post your review' }}
+              {{ myExistingId ? t('rooms.updateReview') : t('rooms.postReview') }}
             </el-button>
-            <el-button v-if="myExistingId" @click="removeReview(myExistingId)">Delete yours</el-button>
-            <span class="hint" style="margin-left: 10px">One review per person per room. Please review the room, not the people in it.</span>
+            <el-button v-if="myExistingId" @click="removeReview(myExistingId)">{{ t('rooms.deleteYours') }}</el-button>
+            <span class="hint" style="margin-left: 10px">{{ t('rooms.reviewHint') }}</span>
           </el-form-item>
         </el-form>
 
         <div class="rev-head">
-          <span class="hint">{{ reviews ? reviews.count : 0 }} review{{ reviews && reviews.count === 1 ? '' : 's' }}</span>
+          <span class="hint">{{ t('rooms.reviewCount', reviews ? reviews.count : 0) }}</span>
           <el-radio-group v-model="reviewSort" size="small" @change="loadReviews">
-            <el-radio-button value="time">Newest first</el-radio-button>
-            <el-radio-button value="rating">Highest rated</el-radio-button>
+            <el-radio-button value="time">{{ t('rooms.newest') }}</el-radio-button>
+            <el-radio-button value="rating">{{ t('rooms.highest') }}</el-radio-button>
           </el-radio-group>
         </div>
 
@@ -143,25 +148,31 @@
             <div class="rev-top">
               <el-rate :model-value="it.rating" disabled size="small" />
               <span class="rev-meta">{{ it.author }} &middot; {{ it.updatedAt }}</span>
-              <el-button v-if="it.mine" link type="danger" size="small" @click="removeReview(it.id)">Delete</el-button>
+              <el-button v-if="it.mine" link type="danger" size="small" @click="removeReview(it.id)">
+                {{ t('common.delete') }}
+              </el-button>
             </div>
             <div class="rev-body">{{ it.body }}</div>
           </div>
         </div>
-        <el-empty v-else :image-size="60" description="No reviews yet. Be the first to describe this room." />
+        <el-empty v-else :image-size="60" :description="t('rooms.noReviews')" />
       </el-card>
 
-      <el-empty v-else description="Pick a room on the left to see its details." />
+      <el-empty v-else :description="t('rooms.pickRoom')" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
+import { useApiError } from '../i18n/apiError'
 
+const { t } = useI18n()
+const apiError = useApiError()
 const auth = useAuthStore()
 const isAdmin = computed(() => auth.role === 'admin')
 
@@ -235,9 +246,9 @@ async function saveFacilities() {
     const i = rooms.value.findIndex((r) => r.code === data.code)
     if (i >= 0) rooms.value[i] = data
     editing.value = false
-    ElMessage.success('Facilities saved, verified date stamped')
+    ElMessage.success(t('rooms.facilitiesSaved'))
   } catch (e) {
-    ElMessage.error(e.response?.data?.message || 'Could not save the facilities')
+    ElMessage.error(apiError(e, 'rooms.facilitiesFailed'))
   } finally {
     savingFacilities.value = false
   }
@@ -258,17 +269,15 @@ async function loadTimeline() {
     segs.forEach(s => {
       const base = parseInt(s.hour.slice(0, 2), 10) * 60 + parseInt(s.hour.slice(3), 10)
       for (let k = 0; k < (s.span || 1); k++) {
-        const t = base + k * 60
-        hours.push(String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0'))
+        const m = base + k * 60
+        hours.push(String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'))
       }
     })
     axisHours.value = hours
     const busy = segs.filter(s => s.type === 'BUSY' && s.label).map(s => s.label)
-    tlNote.value = busy.length
-      ? 'In use ' + busy.join(', ')
-      : 'No classes and no posted changes on this day — free all day.'
+    tlNote.value = busy.length ? t('rooms.noteInUse', { ranges: busy.join(', ') }) : t('rooms.noteAllFree')
   } catch (e) {
-    timelineError.value = 'Could not load the timetable for this room: ' + (e.response?.status || e.message)
+    timelineError.value = t('rooms.timelineFailed', { status: e.response?.status || e.message })
   }
 }
 
@@ -283,20 +292,20 @@ async function loadReviews() {
     myRating.value = mine ? mine.rating : 0
     myBody.value = mine ? mine.body : ''
   } catch (e) {
-    reviewError.value = 'Could not load reviews: ' + (e.response?.status || e.message)
+    reviewError.value = t('rooms.reviewsFailed', { status: e.response?.status || e.message })
   }
 }
 
 async function submitReview() {
-  if (!myRating.value) { ElMessage.warning('Please give a rating from 1 to 5 stars'); return }
-  if (!myBody.value.trim()) { ElMessage.warning('Please write a few words as well'); return }
+  if (!myRating.value) { ElMessage.warning(t('rooms.needRating')); return }
+  if (!myBody.value.trim()) { ElMessage.warning(t('rooms.needBody')); return }
   savingReview.value = true
   try {
     await api.post(`/rooms/${selected.value.code}/reviews`, { rating: myRating.value, body: myBody.value })
-    ElMessage.success('Review saved')
+    ElMessage.success(t('rooms.reviewSaved'))
     await refreshAll()
   } catch (e) {
-    ElMessage.error(e.response?.data?.message || 'Could not save the review')
+    ElMessage.error(apiError(e, 'rooms.reviewFailed'))
   } finally {
     savingReview.value = false
   }
@@ -305,10 +314,10 @@ async function submitReview() {
 async function removeReview(id) {
   try {
     await api.delete(`/reviews/${id}`)
-    ElMessage.success('Review deleted')
+    ElMessage.success(t('rooms.reviewDeleted'))
     await refreshAll()
   } catch (e) {
-    ElMessage.error(e.response?.data?.message || 'Could not delete the review')
+    ElMessage.error(apiError(e, 'rooms.reviewDeleteFailed'))
   }
 }
 
@@ -316,6 +325,11 @@ async function refreshAll() {
   await loadReviews()
   summary.value = (await api.get('/reviews/summary')).data
 }
+
+// 语言切换后，已经拼好的提示文字要用新语言重算
+watch(() => t('app.name'), () => {
+  if (timeline.value) loadTimeline()
+})
 </script>
 
 <style scoped>
@@ -332,7 +346,7 @@ async function refreshAll() {
 .ri-meta { color: #8A94A6; font-size: 11.5px; }
 .ri-type { color: #909399; font-size: 11px; }
 .ri-stars { color: #E6A23C; }
-.card-head { display: flex; justify-content: space-between; align-items: center; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .hint { color: #8A94A6; font-size: 12px; }
 .small { font-size: 12px; }
 .muted { color: #909399; }
@@ -346,11 +360,9 @@ async function refreshAll() {
 .rev-body { margin-top: 4px; color: #303133; font-size: 13px; line-height: 1.6; }
 .tl-grid { display: grid; gap: 2px; }
 .cell { height: 30px; border-radius: 3px; display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 10px; overflow: hidden; white-space: nowrap; }
+  color: #fff; font-size: 10px; overflow: hidden; white-space: nowrap; min-width: 0; }
 .busy { background: #5B8FF9; }
 .free { background: #7BC96F; }
-.buf { background: repeating-linear-gradient(45deg, #E4E7ED, #E4E7ED 4px, #F5F7FA 4px, #F5F7FA 8px); color: #8A94A6; }
-.cell.busy, .cell.free { min-width: 0; }
 /* 轴上每个整点标的是「这一格的起点」，所以标签左边缘对齐格线，不居中 */
 .tl-axis { display: grid; gap: 2px; margin-top: 7px; color: #8A94A6; font-size: 9px; }
 .tl-axis span { position: relative; text-align: left; white-space: nowrap; }

@@ -25,6 +25,7 @@ This project joins the two things that decide whether a room is usable — the *
 - **Reviews** — one star rating per person per room; administrators can remove any review, and removals are logged.
 - **Facility edits** — seats / sockets / seat type are editable **only by administrators**; each save stamps a "last verified" time, and rooms that have never been verified say so on screen.
 - **Staff changes** — an administrator can **add a use** of a room or **release** time, and every change carries an expiry date and an audit entry.
+- **Three languages** — the whole interface switches between English, 简体中文 and 繁體中文 from the header (and from the sign-in page), and the choice is remembered.
 - **Sign-up** — anyone with an `hku.hk` address (`@connect.hku.hk`, `@hku.hk`, …) can create a student account with an email and a password. The prototype sends no verification email.
 
 ## Screenshots
@@ -194,7 +195,7 @@ empty-classroom/
 
 ## Licence and credits
 
-This repository is coursework and is not distributed, so it carries no licence file of its own. All third-party components are used under permissive licences — MIT for the front-end stack (Vue 3, Vite, Element Plus, Pinia, axios), Apache-2.0 for Spring Boot and Flyway, the PostgreSQL licence for the database, BSD-2-Clause for the JDBC driver — and each is credited in [THIRD-PARTY.md](THIRD-PARTY.md). The interface follows the sidebar-dashboard idiom popularised by youlai's [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin) (MIT); **no code from that template is copied into this project**.
+This repository is coursework and is not distributed, so it carries no licence file of its own. All third-party components are used under permissive licences — MIT for the front-end stack (Vue 3, Vite, Element Plus, Pinia, axios, vue-i18n), Apache-2.0 for Spring Boot and Flyway, the PostgreSQL licence for the database, BSD-2-Clause for the JDBC driver — and each is credited in [THIRD-PARTY.md](THIRD-PARTY.md). The interface follows the sidebar-dashboard idiom popularised by youlai's [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin) (MIT); **no code from that template is copied into this project**.
 
 ## Context
 

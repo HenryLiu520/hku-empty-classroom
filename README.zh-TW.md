@@ -25,6 +25,7 @@
 - **評價** —— 一人一房一條星級；管理員可刪任何一條，刪除留審計。
 - **設施編輯** —— 座位數／插座／座位類型**只有管理員能改**；每次儲存蓋上「最後核實時間」，從未核實過的房間在介面上明確標註。
 - **管理端變更** —— 管理員可以**新增使用（add use）**或**釋放時間（release）**，每次變更都有到期時間與審計記錄。
+- **三種語言** —— 整個介面可在頂欄（和登入頁）切換 英文 / 簡體中文 / 繁體中文，選擇會被記住。
 - **註冊** —— 任何 `hku.hk` 後綴的信箱（`@connect.hku.hk`、`@hku.hk` 等）都可以用信箱＋密碼註冊學生帳號。原型階段**不發驗證信**。
 
 ## 介面
@@ -196,7 +197,7 @@ empty-classroom/
 
 ## 授權與致謝
 
-本儲存庫是課程作業、不對外分發，因此沒有獨立的 LICENSE 檔案。用到的第三方元件全部是寬鬆授權——前端棧（Vue 3、Vite、Element Plus、Pinia、axios）為 MIT，Spring Boot 與 Flyway 為 Apache-2.0，資料庫為 PostgreSQL 授權，JDBC 驅動為 BSD-2-Clause——逐項列在 [THIRD-PARTY.md](THIRD-PARTY.md)。介面沿用了 youlai [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin)（MIT）帶起的側欄式後台版式；**未複製該專案任何程式碼**。
+本儲存庫是課程作業、不對外分發，因此沒有獨立的 LICENSE 檔案。用到的第三方元件全部是寬鬆授權——前端棧（Vue 3、Vite、Element Plus、Pinia、axios、vue-i18n）為 MIT，Spring Boot 與 Flyway 為 Apache-2.0，資料庫為 PostgreSQL 授權，JDBC 驅動為 BSD-2-Clause——逐項列在 [THIRD-PARTY.md](THIRD-PARTY.md)。介面沿用了 youlai [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin)（MIT）帶起的側欄式後台版式；**未複製該專案任何程式碼**。
 
 ## 專案背景
 

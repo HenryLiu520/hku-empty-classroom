@@ -2,33 +2,33 @@
   <div>
     <el-card shadow="never" class="mb">
       <div class="filters">
-        <span class="lbl">Building</span>
+        <span class="lbl">{{ t('find.building') }}</span>
         <el-select v-model="building" style="width: 200px" @change="search">
-          <el-option label="All buildings" value="" />
-          <el-option v-for="b in buildings" :key="b" :label="b + ', Centennial Campus'" :value="b" />
+          <el-option :label="t('find.allBuildings')" value="" />
+          <el-option v-for="b in buildings" :key="b" :label="b + t('find.campus')" :value="b" />
         </el-select>
 
-        <span class="lbl">Date</span>
+        <span class="lbl">{{ t('common.date') }}</span>
         <el-date-picker v-model="date" type="date" value-format="YYYY-MM-DD" style="width: 170px" @change="search" />
 
-        <span class="lbl">From</span>
+        <span class="lbl">{{ t('find.from') }}</span>
         <el-time-select v-model="from" start="08:00" step="01:00" end="21:00" style="width: 120px" />
 
-        <span class="lbl">To</span>
+        <span class="lbl">{{ t('find.to') }}</span>
         <el-time-select v-model="to" :start="minTo" step="01:00" end="22:50" style="width: 120px" @change="search" />
 
-        <el-button type="primary" :loading="loading" @click="search">Search</el-button>
-        <el-button @click="reset">Reset</el-button>
+        <el-button type="primary" :loading="loading" @click="search">{{ t('find.search') }}</el-button>
+        <el-button @click="reset">{{ t('find.reset') }}</el-button>
       </div>
 
       <div class="filters mt-sm">
-        <span class="lbl">Sort by</span>
-        <el-select v-model="sortBy" style="width: 210px">
+        <span class="lbl">{{ t('find.sortBy') }}</span>
+        <el-select v-model="sortBy" style="width: 230px">
           <el-option v-for="o in sortOptions" :key="o.value" :label="o.label" :value="o.value" />
         </el-select>
 
-        <el-switch v-model="showAll" active-text="Show all rooms" />
-        <span class="hint" v-if="!showAll">Only rooms free for the whole interval are listed.</span>
+        <el-switch v-model="showAll" :active-text="t('find.showAll')" />
+        <span class="hint" v-if="!showAll">{{ t('find.onlyFree') }}</span>
       </div>
     </el-card>
 
@@ -36,74 +36,73 @@
       <template #header>
         <div class="card-head">
           <span>
-            <b>{{ result.matchedCount ?? 0 }}</b> of {{ (result.rooms || []).length }} rooms match
-            <span class="hint" v-if="!showAll">&middot; listing matching rooms only</span>
-            <span class="hint" v-else>&middot; listing every room</span>
+            {{ t('find.matched', { matched: result.matchedCount ?? 0, total: (result.rooms || []).length }) }}
+            <span class="hint" v-if="!showAll">&middot; {{ t('find.listingMatching') }}</span>
+            <span class="hint" v-else>&middot; {{ t('find.listingEvery') }}</span>
           </span>
-          <span class="hint">{{ sortLabel }} &middot; a free window stops 10 minutes before the next class, so there is time to pack up and leave. That is why rooms are offered until <b>:50</b>.</span>
+          <span class="hint">{{ sortLabel }} &middot; {{ t('find.freeStops') }}</span>
         </div>
       </template>
 
       <el-table v-if="visibleRooms.length" :data="visibleRooms" v-loading="loading" @row-click="pick"
                 highlight-current-row :row-class-name="rowClass">
-        <el-table-column prop="room.code" label="Room" width="130">
+        <el-table-column prop="room.code" :label="t('find.colRoom')" width="130">
           <template #default="{ row }"><b>{{ row.room.code }}</b></template>
         </el-table-column>
-        <el-table-column label="Location" width="130">
+        <el-table-column :label="t('find.colLocation')" width="130">
           <template #default="{ row }">{{ row.room.building }} / {{ row.room.floor }}</template>
         </el-table-column>
-        <el-table-column prop="room.capacity" label="Seats" width="80" />
-        <el-table-column prop="room.roomType" label="Type" width="110" />
-        <el-table-column label="Status" width="150">
+        <el-table-column prop="room.capacity" :label="t('find.colSeats')" width="80" />
+        <el-table-column prop="room.roomType" :label="t('find.colType')" width="110" />
+        <el-table-column :label="t('find.colStatus')" width="150">
           <template #default="{ row }">
             <el-tag :type="tagType(row.status)" effect="light">{{ statusText(row.status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="Free window" min-width="190">
+        <el-table-column :label="t('find.colWindow')" min-width="190">
           <template #default="{ row }">
             <span v-if="row.matches" class="mono">{{ coveringWindow(row) }}</span>
-            <span v-else-if="row.windows.length" class="mono muted">after {{ row.windows[0].start }}</span>
-            <span v-else class="muted">no window long enough</span>
+            <span v-else-if="row.windows.length" class="mono muted">
+              {{ t('find.after', { time: row.windows[0].start }) }}
+            </span>
+            <span v-else class="muted">{{ t('find.noWindowLong') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="Next class" width="120">
-          <template #default="{ row }"><span class="mono">{{ row.nextBusyStart || '&mdash;' }}</span></template>
+        <el-table-column :label="t('find.colNext')" width="120">
+          <template #default="{ row }"><span class="mono">{{ row.nextBusyStart || '—' }}</span></template>
         </el-table-column>
       </el-table>
 
-      <el-empty v-else :image-size="70"
-                description="No room is free for that whole interval. Try a shorter interval, another building, or turn on 'Show all rooms'." />
+      <el-empty v-else :image-size="70" :description="t('find.empty')" />
 
-      <el-alert type="warning" :closable="false" show-icon class="mt"
-        title="Please note: a room must be given up if a class or a member of staff needs it, and a member of staff may ask you to leave. This page shows where rooms are free. It does not grant permission to use a room." />
+      <el-alert type="warning" :closable="false" show-icon class="mt" :title="t('find.noticePermission')" />
 
-      <el-alert type="info" :closable="false" show-icon class="mt"
-        title="A room shown as free may already be used by other students, and rooms are shared. Free means the room is not timetabled or taken, not that it is empty." />
+      <el-alert type="info" :closable="false" show-icon class="mt" :title="t('find.noticeShared')" />
     </el-card>
 
     <el-card v-if="timeline" shadow="never">
       <template #header>
         <div class="card-head">
-          <span>Room timeline: <b>{{ timeline.room }}</b>, {{ timeline.date }}</span>
-          <span class="hint">Blue = class, green = free, hatched = changeover buffer</span>
+          <span>{{ t('find.timelineTitle', { room: timeline.room, date: timeline.date }) }}</span>
+          <span class="hint">{{ t('find.noTimelineHint') }}</span>
         </div>
       </template>
 
-      <div class="tl">
+      <div class="tl-grid" :style="gridStyle">
         <div v-for="(s, i) in timeline.segments" :key="i"
-             :class="['seg', s.type === 'BUSY' ? 'busy' : s.type === 'FREE' ? 'free' : 'buf']"
-             :style="{ width: s.widthPct + '%' }"
-             :title="s.type + ' ' + s.start + ' - ' + s.end">
-          <span v-if="s.type === 'FREE' && s.widthPct > 8">free</span>
+             :class="['cell', s.type === 'BUSY' ? 'busy' : 'free']"
+             :style="s.span > 1 ? { gridColumn: 'span ' + s.span } : null"
+             :title="(s.type === 'BUSY' ? t('rooms.inUseTip', { from: s.from, to: s.to })
+                                        : t('rooms.freeTip', { from: s.from, to: s.to }))">
+          <span>{{ s.label }}</span>
         </div>
       </div>
-      <div class="ticks">
-        <span v-for="t in ticks" :key="t">{{ t }}</span>
+      <div class="tl-axis" :style="gridStyle">
+        <span v-for="(h, i) in axisHours" :key="i">{{ h }}</span>
       </div>
       <div class="legend">
-        <span><i class="sw busy"></i>Class (from timetable)</span>
-        <span><i class="sw free"></i>Free</span>
-        <span><i class="sw buf"></i>Buffer, not offered</span>
+        <span><i class="sw busy"></i>{{ t('find.legendInUse') }}</span>
+        <span><i class="sw free"></i>{{ t('find.legendFree') }}</span>
       </div>
     </el-card>
   </div>
@@ -111,7 +110,10 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import api from '../api'
+
+const { t } = useI18n()
 
 const buildings = ref([])
 const building = ref('')
@@ -123,26 +125,26 @@ const showAll = ref(false)
 const sortBy = ref('window')
 
 /** 排序方式：后续要加别的方式，在这里加一行即可 */
-const sortOptions = [
-  { value: 'window', label: 'Longest free window' },
-  { value: 'code', label: 'Room code (A to Z)' },
-  { value: 'building', label: 'Building, then room code' },
-  { value: 'seats', label: 'Most seats first' }
-]
+const sortOptions = computed(() => [
+  { value: 'window', label: t('find.sortWindow') },
+  { value: 'code', label: t('find.sortCode') },
+  { value: 'building', label: t('find.sortBuilding') },
+  { value: 'seats', label: t('find.sortSeats') }
+])
 
 const result = ref({})
 const timeline = ref(null)
 const loading = ref(false)
-
-const ticks = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00']
+const gridStyle = ref('')
+const axisHours = ref([])
 
 /** To 的下拉只给"晚于 From"的时刻：最早是 From + 50 分钟 */
 const minTo = computed(() => {
-  const t = toMin(from.value) + 50
-  return `${String(Math.floor(t / 60)).padStart(2, '0')}:50`
+  const m = toMin(from.value) + 50
+  return `${String(Math.floor(m / 60)).padStart(2, '0')}:50`
 })
 
-const sortLabel = computed(() => (sortOptions.find((o) => o.value === sortBy.value) || {}).label || '')
+const sortLabel = computed(() => (sortOptions.value.find((o) => o.value === sortBy.value) || {}).label || '')
 
 /** 列表内容：默认只列符合时间段要求的房间，排序方式可选 */
 const visibleRooms = computed(() => {
@@ -198,6 +200,19 @@ function reset() {
 async function pick(row) {
   const { data } = await api.get(`/rooms/${row.room.code}/timeline`, { params: { date: date.value } })
   timeline.value = data
+  // 与「所有教室」页同一套方格：连续占用合并成一整块，轴上每个整点标在格线上
+  const segs = data.segments || []
+  const totalHours = segs.reduce((n, s) => n + (s.span || 1), 0)
+  gridStyle.value = 'grid-template-columns: repeat(' + Math.max(1, totalHours) + ', 1fr)'
+  const hours = []
+  segs.forEach(s => {
+    const base = parseInt(s.hour.slice(0, 2), 10) * 60 + parseInt(s.hour.slice(3), 10)
+    for (let k = 0; k < (s.span || 1); k++) {
+      const m = base + k * 60
+      hours.push(String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'))
+    }
+  })
+  axisHours.value = hours
 }
 
 function coveringWindow(row) {
@@ -209,12 +224,13 @@ function coveringWindow(row) {
 function toMin(hhmm) { return parseInt(hhmm.slice(0, 2)) * 60 + parseInt(hhmm.slice(3)) }
 
 function statusText(s) {
-  return ({ AVAILABLE: 'Available', AVAILABLE_LATER: 'Free later', IN_USE: 'In use',
-            NONE: 'No window' })[s] || s
+  return ({
+    AVAILABLE: t('find.statusAvailable'), AVAILABLE_LATER: t('find.statusLater'),
+    IN_USE: t('find.statusInUse'), NONE: t('find.statusNone')
+  })[s] || s
 }
 function tagType(s) {
-  return ({ AVAILABLE: 'success', AVAILABLE_LATER: 'primary', IN_USE: 'warning',
-            NONE: 'info' })[s] || 'info'
+  return ({ AVAILABLE: 'success', AVAILABLE_LATER: 'primary', IN_USE: 'warning', NONE: 'info' })[s] || 'info'
 }
 function rowClass({ row }) { return row.matches ? 'matched-row' : '' }
 </script>
@@ -223,16 +239,18 @@ function rowClass({ row }) { return row.matches ? 'matched-row' : '' }
 .mb { margin-bottom: 14px; }
 .filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .lbl { color: #606266; font-size: 13px; }
-.card-head { display: flex; justify-content: space-between; align-items: center; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .hint { color: #8A94A6; font-size: 12px; }
 .mono { font-variant-numeric: tabular-nums; }
 .muted { color: #909399; }
-.tl { display: flex; height: 28px; border: 1px solid #EBEEF5; border-radius: 4px; overflow: hidden; }
-.seg { height: 100%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; }
+.tl-grid { display: grid; gap: 2px; }
+.cell { height: 30px; border-radius: 3px; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 10px; overflow: hidden; white-space: nowrap; min-width: 0; }
 .busy { background: #5B8FF9; }
 .free { background: #7BC96F; }
-.buf { background: repeating-linear-gradient(45deg, #E4E7ED, #E4E7ED 4px, #F5F7FA 4px, #F5F7FA 8px); }
-.ticks { display: flex; justify-content: space-between; color: #8A94A6; font-size: 11px; margin-top: 5px; }
+.tl-axis { display: grid; gap: 2px; margin-top: 7px; color: #8A94A6; font-size: 9px; }
+.tl-axis span { position: relative; text-align: left; white-space: nowrap; }
+.tl-axis span::before { content: ''; position: absolute; left: 0; top: -6px; width: 1px; height: 4px; background: #DCDFE6; }
 .legend { display: flex; gap: 18px; margin-top: 10px; color: #606266; font-size: 12px; }
 .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
 .mt { margin-top: 12px; }
