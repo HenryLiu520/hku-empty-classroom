@@ -20,7 +20,7 @@ public class AvailabilityController {
 
     /**
      * 学生端主查询：某天、某楼栋、几点到几点。
-     * 例：/api/availability?date=2026-10-05&building=CPD&from=14:00&to=15:50
+     * 例：/api/availability?date=2026-10-05&building=Knowles%20Building&from=14:00&to=15:50
      * 起点必须是整点，终点必须是 :50（最后 10 分钟留给收拾离开）。
      * 兼容旧写法：不给 to 时可用 from + minutes（如 from=14:00&minutes=120）。
      */

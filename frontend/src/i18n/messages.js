@@ -44,7 +44,7 @@ export default {
       errSignIn: 'Sign in failed', errSignUp: 'Sign-up failed'
     },
     find: {
-      building: 'Building', allBuildings: 'All buildings', campus: ', Centennial Campus',
+      building: 'Building', allBuildings: 'All buildings',
       from: 'From', to: 'To', search: 'Search', reset: 'Reset', sortBy: 'Sort by',
       showAll: 'Show all rooms',
       onlyFree: 'Only rooms free for the whole interval are listed.',
@@ -188,7 +188,7 @@ export default {
       errSignIn: '登录失败', errSignUp: '注册失败'
     },
     find: {
-      building: '楼栋', allBuildings: '全部楼栋', campus: '，百周年校园',
+      building: '楼栋', allBuildings: '全部楼栋',
       from: '从', to: '到', search: '查询', reset: '重置', sortBy: '排序',
       showAll: '显示全部教室',
       onlyFree: '只列出整段都空着的教室。',
@@ -324,7 +324,7 @@ export default {
       errSignIn: '登入失敗', errSignUp: '註冊失敗'
     },
     find: {
-      building: '樓棟', allBuildings: '全部樓棟', campus: '，百週年校園',
+      building: '樓棟', allBuildings: '全部樓棟',
       from: '從', to: '到', search: '查詢', reset: '重設', sortBy: '排序',
       showAll: '顯示全部教室',
       onlyFree: '只列出整段都空著的教室。',

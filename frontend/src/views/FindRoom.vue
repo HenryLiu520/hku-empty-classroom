@@ -5,7 +5,7 @@
         <span class="lbl">{{ t('find.building') }}</span>
         <el-select v-model="building" style="width: 200px" @change="search">
           <el-option :label="t('find.allBuildings')" value="" />
-          <el-option v-for="b in buildings" :key="b" :label="b + t('find.campus')" :value="b" />
+          <el-option v-for="b in buildings" :key="b" :label="b" :value="b" />
         </el-select>
 
         <span class="lbl">{{ t('common.date') }}</span>

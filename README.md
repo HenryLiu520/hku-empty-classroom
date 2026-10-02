@@ -147,7 +147,7 @@ Stop everything with `./scripts/stop-all.sh`. Layers can be started individually
 Sanity check from the command line:
 
 ```bash
-curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&from=14:00&to=15:50" | python3 -m json.tool | head -30
+curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=Central%20Podium&from=14:00&to=15:50" | python3 -m json.tool | head -30
 ```
 
 ## API (prototype)
@@ -157,8 +157,10 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 | `POST` | `/api/auth/register` | Sign up with an `hku.hk` email; returns a token |
 | `POST` | `/api/auth/login` | Returns a token (kept in memory, 24 h) |
 | `GET` | `/api/buildings` | Buildings |
-| `GET` | `/api/rooms?building=CPD` | Room list, with facilities and review averages |
+| `GET` | `/api/rooms?building=Central%20Podium` | Room list, with facilities and review averages |
 | `GET` | `/api/availability?date=&building=&from=&to=` | **Main query** — which rooms are free for the whole window |
+
+The `building` parameter takes the University's own building name, as listed by `/api/buildings` — written in full and without a campus prefix: `Central Podium`, `Knowles Building`, `K. K. Leung Building`, `Main Building`. Room codes keep the University's short form (`CPD-LG.01`).
 | `GET` | `/api/rooms/{code}/timeline?date=` | Busy / free / buffer segments for one room, one day |
 | `POST` | `/api/updates` | Post a change (`USE` / `RELEASE`) — administrators only |
 | `GET` | `/api/updates/mine` · `GET`/`DELETE` `/api/updates[/{id}]` | List, inspect and cancel changes (cancel keeps the record, marks it expired) |

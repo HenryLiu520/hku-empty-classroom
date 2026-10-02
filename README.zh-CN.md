@@ -140,7 +140,7 @@ cd hku-empty-classroom
 命令行自测：
 
 ```bash
-curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&from=14:00&to=15:50" | python3 -m json.tool | head -30
+curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=Central%20Podium&from=14:00&to=15:50" | python3 -m json.tool | head -30
 ```
 
 ## 接口（原型版）
@@ -150,8 +150,10 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 | `POST` | `/api/auth/register` | 用 `hku.hk` 邮箱注册，返回 token |
 | `POST` | `/api/auth/login` | 返回 token（内存保存 24 小时） |
 | `GET` | `/api/buildings` | 楼栋列表 |
-| `GET` | `/api/rooms?building=CPD` | 教室列表（含设施与评价均分） |
+| `GET` | `/api/rooms?building=Central%20Podium` | 教室列表（含设施与评价均分） |
 | `GET` | `/api/availability?date=&building=&from=&to=` | **主查询**：整段都空着的教室 |
+
+`building` 参数用学校自己的大楼名（见 `/api/buildings`），写**全称、不带校区前缀**：`Central Podium`、`Knowles Building`、`K. K. Leung Building`、`Main Building`。教室编号保持学校原来的简写（`CPD-LG.01`）。
 | `GET` | `/api/rooms/{code}/timeline?date=` | 某教室一天的忙/闲/缓冲片段 |
 | `POST` | `/api/updates` | 发布变更（`USE` / `RELEASE`）——仅管理员 |
 | `GET` | `/api/updates/mine`、`GET`/`DELETE` `/api/updates[/{id}]` | 查看与撤销变更（撤销保留记录，只置为失效） |
