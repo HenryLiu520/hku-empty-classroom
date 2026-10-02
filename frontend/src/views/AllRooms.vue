@@ -355,34 +355,34 @@ watch(() => t('app.name'), () => {
 .main { flex: 1; min-width: 0; }
 .room-list { max-height: 640px; overflow: auto; margin: -4px; }
 .room-item { padding: 7px 8px; border-radius: 6px; cursor: pointer; }
-.room-item:hover { background: #F5F7FA; }
-.room-item.active { background: #ECF5FF; }
+.room-item:hover { background: #f2f6f4; }
+.room-item.active { background: #e4efeb; box-shadow: inset 3px 0 0 #b49764; }
 .ri-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
-.ri-meta { color: #8A94A6; font-size: 11.5px; }
-.ri-type { color: #909399; font-size: 11px; }
+.ri-meta { color: #7d8c88; font-size: 11.5px; }
+.ri-type { color: #7d8c88; font-size: 11px; }
 .ri-stars { color: #E6A23C; }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.hint { color: #8A94A6; font-size: 12px; }
+.hint { color: #7d8c88; font-size: 12px; }
 .small { font-size: 12px; }
-.muted { color: #909399; }
+.muted { color: #7d8c88; }
 .sec { margin: 18px 0 8px; font-size: 13px; }
 .fac-form { max-width: 640px; margin-top: 4px; }
 .review-form { max-width: 720px; margin-top: 4px; }
 .rev-head { display: flex; justify-content: space-between; align-items: center; margin: 6px 0 10px; }
-.rev-item { border-top: 1px solid #F0F2F5; padding: 10px 0; }
+.rev-item { border-top: 1px solid #e6ebe9; padding: 10px 0; }
 .rev-top { display: flex; align-items: center; gap: 10px; }
-.rev-meta { color: #8A94A6; font-size: 12px; }
-.rev-body { margin-top: 4px; color: #303133; font-size: 13px; line-height: 1.6; }
+.rev-meta { color: #7d8c88; font-size: 12px; }
+.rev-body { margin-top: 4px; color: #1f2d2a; font-size: 13px; line-height: 1.6; }
 .tl-grid { display: grid; gap: 2px; }
 .cell { height: 30px; border-radius: 3px; display: flex; align-items: center; justify-content: center;
   color: #fff; font-size: 10px; overflow: hidden; white-space: nowrap; min-width: 0; }
-.busy { background: #5B8FF9; }
-.free { background: #7BC96F; }
+.busy { background: #9fb0aa; }
+.free { background: #2f8b6d; }
 /* 轴上每个整点标的是「这一格的起点」，所以标签左边缘对齐格线，不居中 */
-.tl-axis { display: grid; gap: 2px; margin-top: 7px; color: #8A94A6; font-size: 9px; }
+.tl-axis { display: grid; gap: 2px; margin-top: 7px; color: #7d8c88; font-size: 9px; }
 .tl-axis span { position: relative; text-align: left; white-space: nowrap; }
-.tl-axis span::before { content: ''; position: absolute; left: 0; top: -6px; width: 1px; height: 4px; background: #DCDFE6; }
-.tl-note { margin: 8px 0 0; color: #606266; font-size: 12px; }
-.legend { display: flex; gap: 18px; margin-top: 10px; color: #606266; font-size: 12px; }
+.tl-axis span::before { content: ''; position: absolute; left: 0; top: -6px; width: 1px; height: 4px; background: #dfe6e3; }
+.tl-note { margin: 8px 0 0; color: #5c6b67; font-size: 12px; }
+.legend { display: flex; gap: 18px; margin-top: 10px; color: #5c6b67; font-size: 12px; }
 .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
 </style>

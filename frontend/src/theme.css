@@ -1,0 +1,67 @@
+/* 港大主题：主色取 HKU Green #024638（学校视觉规范里的蓝绿），点缀用金 #B49764。
+   放在 Element Plus 的样式之后引入，覆盖它的主色变量。 */
+:root {
+  --ec-green: #024638;
+  --ec-green-deep: #013a2e;
+  --ec-gold: #b49764;
+  --ec-gold-soft: #e6d9c0;
+  --ec-ink: #1f2d2a;
+  --ec-muted: #6b7b77;
+  --ec-line: #e6ebe9;
+  --ec-bg: #f4f7f5;
+
+  --el-color-primary: #024638;
+  --el-color-primary-light-3: #4d7e74;
+  --el-color-primary-light-5: #80a39c;
+  --el-color-primary-light-7: #b3c8c3;
+  --el-color-primary-light-8: #ccdad7;
+  --el-color-primary-light-9: #e6efed;
+  --el-color-primary-dark-2: #01382d;
+  --el-border-radius-base: 8px;
+}
+
+body {
+  background: var(--ec-bg);
+  color: var(--ec-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: rgba(2, 70, 56, .16); }
+
+/* 细滚动条 */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+  background: #cfd8d5; border-radius: 6px;
+  border: 3px solid transparent; background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: #a9b8b4; background-clip: content-box; }
+
+/* 卡片：统一圆角、淡边框、轻投影 */
+.el-card {
+  border-radius: 12px;
+  border-color: var(--ec-line);
+  box-shadow: 0 1px 2px rgba(16, 40, 34, .04);
+}
+.el-card__header { border-bottom-color: var(--ec-line); }
+
+/* 表格表头：安静一点 */
+.el-table th.el-table__cell { background: #f7faf8; color: var(--ec-muted); font-weight: 600; }
+
+/* 按钮、输入框圆角与主色一致 */
+.el-button { border-radius: 8px; }
+.el-input__wrapper, .el-select__wrapper { border-radius: 8px; }
+
+/* 说明性小字 */
+.ec-note { color: var(--ec-muted); font-size: 12.5px; line-height: 1.6; }
+
+/* 角色标签：金 / 绿 / 灰，替代 Element 默认的红-橙-灰 */
+.el-tag.ec-tag-gold { background: #f7f1e6; color: #7d6132; border-color: #e6d9c0; }
+.el-tag.ec-tag-green { background: #e6efed; color: #024638; border-color: #cfe0db; }
+.el-tag.ec-tag-grey { background: #f2f4f3; color: #5c6b67; border-color: #e2e7e5; }
+
+/* 提示条跟着主色走，不再是蓝灰 */
+.el-alert--info.is-light { background: #eef4f1; color: #35564d; border: 1px solid #dfe9e5; }
+.el-alert--info.is-light .el-alert__icon { color: var(--ec-green); }
+
+/* 评分星星：沉稳一点的金 */
+.el-rate { --el-rate-fill-color: #d4a24a; }

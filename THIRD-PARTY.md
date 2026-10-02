@@ -15,3 +15,13 @@ the interface only follows a common sidebar-dashboard layout idiom.
 | pgbench (ships with PostgreSQL) | PostgreSQL License |
 
 Layout reference: youlai organization, *vue3-element-admin* (MIT, https://github.com/youlaitech/vue3-element-admin).
+
+## The University of Hong Kong visual identity
+
+The interface carries the University's shield and wordmark (`frontend/src/assets/hku-*.svg`,
+`frontend/public/favicon.svg`) and uses the HKU Green (#024638) and the associated gold
+(#b49764) from the University's visual identity. Those marks are the property of The
+University of Hong Kong. They are reproduced here to identify a coursework prototype made
+for the University, and no licence to them is granted by this repository. The artwork was
+taken from the University's own website (hku.hk) and is unmodified; for the small sidebar
+mark it is cropped to the shield alone, and the wordmark is dropped.

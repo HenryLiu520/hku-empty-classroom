@@ -1,46 +1,55 @@
 <template>
   <div class="login-wrap">
-    <el-card class="login-card" shadow="always">
-      <div class="lg"><span class="mark">EC</span></div>
-      <h2>{{ t('app.name') }}</h2>
-      <p class="tagline">{{ t('login.tagline') }}</p>
-
-      <el-form @submit.prevent="submit">
-        <el-form-item>
-          <el-input v-model="username" size="large"
-                    :placeholder="mode === 'login' ? t('login.usernameOrEmail') : t('login.username')" />
-        </el-form-item>
-        <el-form-item v-if="mode === 'register'">
-          <el-input v-model="email" :placeholder="t('login.email')" size="large" />
-        </el-form-item>
-        <el-form-item>
-          <el-input v-model="password" type="password" :placeholder="t('login.password')"
-                    size="large" show-password />
-        </el-form-item>
-        <el-button type="primary" size="large" class="full" :loading="loading" @click="submit">
-          {{ mode === 'login' ? t('login.signIn') : t('login.createAccount') }}
-        </el-button>
-      </el-form>
-
-      <p v-if="mode === 'register'" class="hint">{{ t('login.hint') }}</p>
-
-      <el-alert v-if="error" :title="error" type="error" :closable="false" show-icon class="mt" />
-
-      <div class="foot">
-        <template v-if="mode === 'login'">
-          {{ t('login.demo') }} &middot; user1 / user123 &nbsp;|&nbsp; admin1 / admin123
-          &nbsp;|&nbsp; super1 / super123<br />
-          <a href="#" @click.prevent="switchToRegister">{{ t('login.createLink') }}</a>
-        </template>
-        <template v-else>
-          <a href="#" @click.prevent="switchToLogin">{{ t('login.backLink') }}</a>
-        </template>
+    <div class="login-card">
+      <!-- 左边：港大品牌板 -->
+      <aside class="brand">
+        <img class="lockup" :src="lockup" alt="The University of Hong Kong" />
+        <h1>{{ t('app.name') }}</h1>
+        <div class="rule"></div>
+        <p class="tagline">{{ t('login.tagline') }}</p>
         <div class="langs">
           <a v-for="l in languages" :key="l.value" href="#"
              :class="{ on: l.value === locale }" @click.prevent="setLocale(l.value)">{{ l.label }}</a>
         </div>
-      </div>
-    </el-card>
+      </aside>
+
+      <!-- 右边：表单 -->
+      <section class="form">
+        <h2>{{ mode === 'login' ? t('login.signIn') : t('login.createAccount') }}</h2>
+
+        <el-form @submit.prevent="submit">
+          <el-form-item>
+            <el-input v-model="username" size="large"
+                      :placeholder="mode === 'login' ? t('login.usernameOrEmail') : t('login.username')" />
+          </el-form-item>
+          <el-form-item v-if="mode === 'register'">
+            <el-input v-model="email" :placeholder="t('login.email')" size="large" />
+          </el-form-item>
+          <el-form-item>
+            <el-input v-model="password" type="password" :placeholder="t('login.password')"
+                      size="large" show-password />
+          </el-form-item>
+          <el-button type="primary" size="large" class="full" :loading="loading" @click="submit">
+            {{ mode === 'login' ? t('login.signIn') : t('login.createAccount') }}
+          </el-button>
+        </el-form>
+
+        <p v-if="mode === 'register'" class="hint">{{ t('login.hint') }}</p>
+
+        <el-alert v-if="error" :title="error" type="error" :closable="false" show-icon class="mt" />
+
+        <div class="foot">
+          <template v-if="mode === 'login'">
+            {{ t('login.demo') }} &middot; user1 / user123 &nbsp;|&nbsp; admin1 / admin123
+            &nbsp;|&nbsp; super1 / super123<br />
+            <a href="#" @click.prevent="switchToRegister">{{ t('login.createLink') }}</a>
+          </template>
+          <template v-else>
+            <a href="#" @click.prevent="switchToLogin">{{ t('login.backLink') }}</a>
+          </template>
+        </div>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -52,6 +61,7 @@ import { ElMessage } from 'element-plus'
 import { useAuthStore } from '../stores/auth'
 import { SUPPORTED, setLocale } from '../i18n'
 import { useApiError } from '../i18n/apiError'
+import lockup from '../assets/hku-lockup-white.svg'
 
 const { t, locale } = useI18n()
 const apiError = useApiError()
@@ -100,20 +110,43 @@ async function submit() {
 </script>
 
 <style scoped>
-.login-wrap { height: 100vh; display: flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #EAF3FF 0%, #F5F7FA 55%, #EFFAF3 100%); }
-.login-card { width: 380px; border-radius: 8px; }
-.hint { font-size: 12px; color: #8A94A6; line-height: 1.5; margin: 4px 0 0; }
-.lg { display: flex; justify-content: center; margin-bottom: 6px; }
-.lg .mark { width: 24px; height: 24px; border-radius: 6px; background: #409EFF; color: #fff;
-  display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; }
-footer, h2 { text-align: center; }
-h2 { margin: 6px 0 2px; font-size: 18px; color: #303133; }
-.tagline { text-align: center; color: #8A94A6; font-size: 12px; margin: 0 0 16px; }
+.login-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px;
+  background: radial-gradient(1200px 620px at 12% 0%, #e7f0ed 0%, #f4f7f5 48%, #edf3f1 100%);
+}
+.login-card {
+  display: flex; width: 760px; max-width: 100%; background: #fff; border-radius: 16px;
+  overflow: hidden; box-shadow: 0 18px 50px rgba(2, 70, 56, .13), 0 2px 6px rgba(2, 70, 56, .06);
+}
+
+/* 品牌板：港大深绿 + 白色锁定版校徽 */
+.brand {
+  width: 320px; flex: none; padding: 38px 30px; color: #fff; display: flex; flex-direction: column;
+  background: linear-gradient(160deg, #024638 0%, #013a2e 100%);
+}
+.brand .lockup { width: 196px; display: block; }
+.brand h1 { margin: 22px 0 0; font-size: 19px; font-weight: 600; letter-spacing: .02em; }
+.brand .rule { width: 34px; height: 2px; background: #b49764; margin: 16px 0 14px; }
+.brand .tagline { margin: 0; font-size: 12.5px; line-height: 1.75; color: rgba(255, 255, 255, .74); }
+.brand .langs { margin-top: auto; padding-top: 22px; display: flex; gap: 14px; font-size: 12px; }
+.brand .langs a { color: rgba(255, 255, 255, .58); text-decoration: none; }
+.brand .langs a.on { color: #fff; font-weight: 600; border-bottom: 1px solid #b49764; }
+
+/* 表单区 */
+.form { flex: 1; padding: 38px 34px; }
+.form h2 { margin: 0 0 20px; font-size: 17px; font-weight: 600; color: #1f2d2a; }
 .full { width: 100%; }
 .mt { margin-top: 12px; }
-.foot { margin-top: 14px; color: #8A94A6; font-size: 12px; text-align: center; line-height: 1.8; }
-.foot a { color: #409EFF; text-decoration: none; }
-.langs { margin-top: 8px; display: flex; justify-content: center; gap: 10px; }
-.langs a.on { color: #303133; font-weight: 600; }
+.hint { font-size: 12px; color: #8a9691; line-height: 1.6; margin: 10px 0 0; }
+.foot {
+  margin-top: 20px; padding-top: 14px; border-top: 1px solid #eef2f0;
+  color: #8a9691; font-size: 11.5px; line-height: 1.9;
+}
+.foot a { color: #024638; text-decoration: none; font-weight: 600; }
+
+@media (max-width: 720px) {
+  .login-card { flex-direction: column; }
+  .brand { width: auto; }
+  .brand .lockup { width: 168px; }
+}
 </style>

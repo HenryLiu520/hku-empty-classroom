@@ -248,7 +248,7 @@ empty-classroom/
 
 ## Licence and credits
 
-This repository is coursework and is not distributed, so it carries no licence file of its own. All third-party components are used under permissive licences — MIT for the front-end stack (Vue 3, Vite, Element Plus, Pinia, axios, vue-i18n), Apache-2.0 for Spring Boot and Flyway, the PostgreSQL licence for the database, BSD-2-Clause for the JDBC driver — and each is credited in [THIRD-PARTY.md](THIRD-PARTY.md). The interface follows the sidebar-dashboard idiom popularised by youlai's [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin) (MIT); **no code from that template is copied into this project**.
+This repository is coursework and is not distributed, so it carries no licence file of its own. All third-party components are used under permissive licences — MIT for the front-end stack (Vue 3, Vite, Element Plus, Pinia, axios, vue-i18n), Apache-2.0 for Spring Boot and Flyway, the PostgreSQL licence for the database, BSD-2-Clause for the JDBC driver — and each is credited in [THIRD-PARTY.md](THIRD-PARTY.md). The interface follows the sidebar-dashboard idiom popularised by youlai's [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin) (MIT); **no code from that template is copied into this project**. The header carries the University's shield and wordmark and uses the HKU Green (#024638) from the University's visual identity; those marks are the University's property, used only to identify this coursework prototype.
 
 ## Context
 

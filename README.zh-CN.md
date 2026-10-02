@@ -240,7 +240,7 @@ empty-classroom/
 
 ## 许可与致谢
 
-本仓库是课程作业、不对外分发，因此没有单独的 LICENSE 文件。用到的第三方组件全部是宽松许可——前端栈（Vue 3、Vite、Element Plus、Pinia、axios、vue-i18n）为 MIT，Spring Boot 与 Flyway 为 Apache-2.0，数据库为 PostgreSQL 许可，JDBC 驱动为 BSD-2-Clause——逐项列在 [THIRD-PARTY.md](THIRD-PARTY.md)。界面沿用了 youlai [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin)（MIT）带火的侧栏式后台版式；**未复制该项目任何代码**。
+本仓库是课程作业、不对外分发，因此没有单独的 LICENSE 文件。用到的第三方组件全部是宽松许可——前端栈（Vue 3、Vite、Element Plus、Pinia、axios、vue-i18n）为 MIT，Spring Boot 与 Flyway 为 Apache-2.0，数据库为 PostgreSQL 许可，JDBC 驱动为 BSD-2-Clause——逐项列在 [THIRD-PARTY.md](THIRD-PARTY.md)。界面沿用了 youlai [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin)（MIT）带火的侧栏式后台版式；**未复制该项目任何代码**。 界面顶部使用香港大学的校徽与字标，主色取港大视觉规范里的 HKU Green（#024638）；这些标记属于香港大学，此处仅用于标示这份课程作业原型。
 
 ## 项目背景
 

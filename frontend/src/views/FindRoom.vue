@@ -238,22 +238,22 @@ function rowClass({ row }) { return row.matches ? 'matched-row' : '' }
 <style scoped>
 .mb { margin-bottom: 14px; }
 .filters { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.lbl { color: #606266; font-size: 13px; }
+.lbl { color: #5c6b67; font-size: 13px; }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.hint { color: #8A94A6; font-size: 12px; }
+.hint { color: #7d8c88; font-size: 12px; }
 .mono { font-variant-numeric: tabular-nums; }
-.muted { color: #909399; }
+.muted { color: #7d8c88; }
 .tl-grid { display: grid; gap: 2px; }
 .cell { height: 30px; border-radius: 3px; display: flex; align-items: center; justify-content: center;
   color: #fff; font-size: 10px; overflow: hidden; white-space: nowrap; min-width: 0; }
-.busy { background: #5B8FF9; }
-.free { background: #7BC96F; }
-.tl-axis { display: grid; gap: 2px; margin-top: 7px; color: #8A94A6; font-size: 9px; }
+.busy { background: #9fb0aa; }
+.free { background: #2f8b6d; }
+.tl-axis { display: grid; gap: 2px; margin-top: 7px; color: #7d8c88; font-size: 9px; }
 .tl-axis span { position: relative; text-align: left; white-space: nowrap; }
-.tl-axis span::before { content: ''; position: absolute; left: 0; top: -6px; width: 1px; height: 4px; background: #DCDFE6; }
-.legend { display: flex; gap: 18px; margin-top: 10px; color: #606266; font-size: 12px; }
+.tl-axis span::before { content: ''; position: absolute; left: 0; top: -6px; width: 1px; height: 4px; background: #dfe6e3; }
+.legend { display: flex; gap: 18px; margin-top: 10px; color: #5c6b67; font-size: 12px; }
 .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
 .mt { margin-top: 12px; }
 .mt-sm { margin-top: 10px; }
-:deep(.matched-row) { background: #F6FFED; }
+:deep(.matched-row) { background: #f2f8f5; }
 </style>

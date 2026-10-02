@@ -24,7 +24,7 @@
         </el-table-column>
         <el-table-column :label="t('accounts.role')" width="150">
           <template #default="{ row }">
-            <el-tag :type="tagType(row.role)" effect="light">{{ roleText(row.role) }}</el-tag>
+            <el-tag :class="tagClass(row.role)" effect="plain">{{ roleText(row.role) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column :label="t('accounts.actions')" width="290">
@@ -205,8 +205,8 @@ function roleText(role) {
   })[role] || role
 }
 
-function tagType(role) {
-  return ({ user: 'info', admin: 'warning', superadmin: 'danger' })[role] || 'info'
+function tagClass(role) {
+  return ({ user: 'ec-tag-grey', admin: 'ec-tag-green', superadmin: 'ec-tag-gold' })[role] || 'ec-tag-grey'
 }
 </script>
 
