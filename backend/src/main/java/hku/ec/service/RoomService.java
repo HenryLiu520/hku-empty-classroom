@@ -33,7 +33,7 @@ public class RoomService {
     /** 房间出参（列表、可用性接口共用） */
     public static Dtos.RoomView view(Room r) {
         return new Dtos.RoomView(r.getId(), r.getCode(), r.getBuilding(), r.getFloor(), r.getCapacity(),
-                r.getRoomType(), r.getSockets(), r.getSeatType(),
+                r.getSockets(), r.getSeatType(),
                 r.getFacilitiesVerifiedAt() == null ? null : r.getFacilitiesVerifiedAt().format(TS));
     }
 

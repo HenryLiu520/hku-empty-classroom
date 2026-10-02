@@ -14,7 +14,7 @@ public final class Dtos {
 
     public record LoginResponse(String token, String username, String displayName, String role) { }
 
-    public record RoomView(Long id, String code, String building, String floor, int capacity, String roomType,
+    public record RoomView(Long id, String code, String building, String floor, int capacity,
                            Boolean sockets, String seatType, String facilitiesVerifiedAt) { }
 
     /** 一个空闲窗口，时间是 "HH:mm" */

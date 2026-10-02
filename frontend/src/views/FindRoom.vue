@@ -58,7 +58,6 @@
           <template #default="{ row }">{{ row.room.building }} / {{ row.room.floor }}</template>
         </el-table-column>
         <el-table-column prop="room.capacity" :label="t('find.colSeats')" width="80" />
-        <el-table-column prop="room.roomType" :label="t('find.colType')" width="110" />
         <el-table-column :label="t('find.colStatus')" width="150">
           <template #default="{ row }">
             <el-tag :type="tagType(row.status)" effect="light">{{ statusText(row.status) }}</el-tag>

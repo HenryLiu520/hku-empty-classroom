@@ -59,7 +59,6 @@ class AvailabilityServiceTest {
         room.setBuilding(BUILDING);
         room.setFloor("1F");
         room.setCapacity(40);
-        room.setRoomType("Tutorial");
         room = rooms.save(room);
     }
 

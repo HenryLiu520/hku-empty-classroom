@@ -27,9 +27,6 @@ public class Room {
     @Column(name = "capacity", nullable = false)
     private Integer capacity;
 
-    @Column(name = "room_type", nullable = false)
-    private String roomType;
-
     // —— 设施（第一批三条）：座位总数用 capacity；下面两条是新增的 ——
     @Column(name = "sockets")
     private Boolean sockets;
@@ -55,9 +52,6 @@ public class Room {
 
     public Integer getCapacity() { return capacity; }
     public void setCapacity(Integer capacity) { this.capacity = capacity; }
-
-    public String getRoomType() { return roomType; }
-    public void setRoomType(String roomType) { this.roomType = roomType; }
 
     public Boolean getSockets() { return sockets; }
     public void setSockets(Boolean sockets) { this.sockets = sockets; }

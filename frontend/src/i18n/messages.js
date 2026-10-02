@@ -57,7 +57,7 @@ export default {
       listingMatching: 'listing matching rooms only', listingEvery: 'listing every room',
       freeStops: 'a free window stops 10 minutes before the next class, so there is time to '
         + 'pack up and leave. That is why rooms are offered until :50.',
-      colRoom: 'Room', colLocation: 'Location', colSeats: 'Seats', colType: 'Type',
+      colRoom: 'Room', colLocation: 'Location', colSeats: 'Seats',
       colStatus: 'Status', colWindow: 'Free window', colNext: 'Next class',
       after: 'after {time}', noWindowLong: 'no window long enough',
       empty: "No room is free for that whole interval. Try a shorter interval, another "
@@ -200,7 +200,7 @@ export default {
       matched: '符合 {matched} / 共 {total} 间教室',
       listingMatching: '只列出符合条件的教室', listingEvery: '列出全部教室',
       freeStops: '空闲窗口在下一节课前 10 分钟结束，留出收拾离开的时间——所以可选到 :50。',
-      colRoom: '教室', colLocation: '位置', colSeats: '座位', colType: '类型',
+      colRoom: '教室', colLocation: '位置', colSeats: '座位',
       colStatus: '状态', colWindow: '空闲窗口', colNext: '下节课',
       after: '{time} 之后', noWindowLong: '没有足够长的空档',
       empty: '没有教室在整段时间都空着。可以缩短时间、换楼栋，或打开「显示全部教室」。',
@@ -336,7 +336,7 @@ export default {
       matched: '符合 {matched} / 共 {total} 間教室',
       listingMatching: '只列出符合條件的教室', listingEvery: '列出全部教室',
       freeStops: '空檔在下一節課前 10 分鐘結束，留出收拾離開的時間——所以可選到 :50。',
-      colRoom: '教室', colLocation: '位置', colSeats: '座位', colType: '類型',
+      colRoom: '教室', colLocation: '位置', colSeats: '座位',
       colStatus: '狀態', colWindow: '空檔', colNext: '下節課',
       after: '{time} 之後', noWindowLong: '沒有足夠長的空檔',
       empty: '沒有教室在整段時間都空著。可以縮短時間、換樓棟，或打開「顯示全部教室」。',

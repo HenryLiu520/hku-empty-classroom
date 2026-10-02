@@ -21,7 +21,6 @@
              :class="{ active: selected && selected.id === r.id }" @click="select(r)">
           <div class="ri-top">
             <b>{{ r.code }}</b>
-            <span class="ri-type">{{ r.roomType }}</span>
           </div>
           <div class="ri-meta">
             {{ r.building }} / {{ r.floor }} &middot; {{ r.capacity }} {{ t('find.colSeats') }}
@@ -42,9 +41,8 @@
           </div>
         </template>
 
-        <el-descriptions :column="4" border size="small">
+        <el-descriptions :column="3" border size="small">
           <el-descriptions-item :label="t('find.colSeats')">{{ selected.capacity }}</el-descriptions-item>
-          <el-descriptions-item :label="t('find.colType')">{{ selected.roomType }}</el-descriptions-item>
           <el-descriptions-item :label="t('find.building')">{{ selected.building }}</el-descriptions-item>
           <el-descriptions-item :label="t('common.floor')">{{ selected.floor }}</el-descriptions-item>
         </el-descriptions>
@@ -364,7 +362,6 @@ watch(() => t('app.name'), () => {
 .room-item.active { background: #e4efeb; box-shadow: inset 3px 0 0 #b49764; }
 .ri-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
 .ri-meta { color: #7d8c88; font-size: 11.5px; }
-.ri-type { color: #7d8c88; font-size: 11px; }
 .ri-stars { color: #E6A23C; }
 .card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .hint { color: #7d8c88; font-size: 12px; }
