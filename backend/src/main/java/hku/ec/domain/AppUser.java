@@ -49,4 +49,11 @@ public class AppUser {
     public String getSalt() { return salt; }
     public String getPasswordHash() { return passwordHash; }
     public String getEmail() { return email; }
+
+    // 管理员改账户 / 提权降权时用
+    public void setDisplayName(String displayName) { this.displayName = displayName; }
+    public void setRole(String role) { this.role = role; }
+    public void setSalt(String salt) { this.salt = salt; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+    public void setEmail(String email) { this.email = email; }
 }

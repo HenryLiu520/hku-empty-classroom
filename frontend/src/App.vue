@@ -10,6 +10,7 @@
           <el-menu-item index="/find">{{ t('nav.find') }}</el-menu-item>
           <el-menu-item index="/rooms">{{ t('nav.rooms') }}</el-menu-item>
           <el-menu-item v-if="auth.isAdmin" index="/manage">{{ t('nav.manage') }}</el-menu-item>
+          <el-menu-item v-if="auth.isSuper" index="/accounts">{{ t('nav.accounts') }}</el-menu-item>
         </el-menu>
       </el-aside>
       <el-container>
@@ -25,7 +26,7 @@
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
-            <el-tag :type="auth.isAdmin ? 'warning' : 'primary'" effect="light">{{ auth.role }}</el-tag>
+            <el-tag :type="roleTag" effect="light">{{ roleLabel }}</el-tag>
             <span class="who">{{ auth.displayName }}</span>
             <el-button link type="primary" @click="signOut">{{ t('nav.signOut') }}</el-button>
           </div>
@@ -48,7 +49,7 @@ import en from 'element-plus/es/locale/lang/en'
 import zhCn from 'element-plus/es/locale/lang/zh-cn'
 import zhTw from 'element-plus/es/locale/lang/zh-tw'
 
-const { t, locale } = useI18n()
+const { t, locale, te } = useI18n()
 const auth = useAuthStore()
 const route = useRoute()
 const router = useRouter()
@@ -59,8 +60,14 @@ const epLocale = computed(() => epLocales[locale.value] || en)
 const langLabel = computed(() => (SUPPORTED.find(l => l.value === locale.value) || {}).label || 'English')
 
 const title = computed(() => ({
-  '/manage': t('nav.manage'), '/rooms': t('nav.rooms')
+  '/manage': t('nav.manage'), '/rooms': t('nav.rooms'), '/accounts': t('nav.accounts')
 }[route.path] || t('nav.find')))
+
+const roleLabel = computed(() => {
+  const key = 'roles.' + auth.role
+  return te(key) ? t(key) : auth.role
+})
+const roleTag = computed(() => ({ superadmin: 'danger', admin: 'warning' }[auth.role] || 'primary'))
 
 function changeLang(value) {
   setLocale(value)

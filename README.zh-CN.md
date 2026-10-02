@@ -19,14 +19,46 @@
 
 ## 功能
 
-- **查询** —— 选日期、楼栋、时间窗（`14:00 → 15:50`），列出整段都空着的教室；每条结果标明"现在可用 / 稍后可用 / 正在使用"。
-- **每间教室有自己的页面** —— 当天课表画成**以整点为格、以整块为单位的方格**（两小时的课就是跨两格的一整块，标签写真实时间 `13:00–14:50`）、设施（座位数、插座、座位类型）、以及其他同学的评价。
-- **All rooms** —— 不按时间过滤的完整教室列表，可排序。
-- **评价** —— 一人一房一条星级；管理员可删任何一条，删除留审计。
-- **设施编辑** —— 座位数 / 插座 / 座位类型**只有管理员能改**；每次保存盖"最后核实时间"，从未核实过的房间在界面上明确标注。
-- **管理端变更** —— 管理员可以**添加使用（add use）**或**释放时间（release）**，每次变更都有到期时间与审计记录。
-- **三种语言** —— 整个界面可在顶栏（和登录页）切换 英文 / 简体中文 / 繁體中文，选择会被记住。
-- **注册** —— 任何 `hku.hk` 后缀的邮箱（`@connect.hku.hk`、`@hku.hk` 等）都可以用邮箱 + 密码注册学生账号。原型阶段**不发验证邮件**。
+下面按**一个人实际会遇到的顺序**排：登录 → 找空教室 → 看某间教室 → （有权限才有的）改教室时间、管理账户。
+
+### 1. 登录
+- 可以用 HKU 邮箱自助注册（`@connect.hku.hk`、`@hku.hk` 等）：邮箱 + 密码，原型阶段不发验证邮件。
+  账户也可以由超级管理员直接创建。
+- 种子账号覆盖三种角色（见「快速开始」）。
+
+### 2. 找空教室 —— 所有角色
+- 选日期、楼栋、时间窗（`14:00 → 15:50`），列出整段都空着的教室；每条结果标明「现在可用 / 稍后可用
+  / 正在使用」，以及下一节课什么时候开始。排序可按：空闲窗口最长、房号、楼栋、座位最多。
+- 两条提醒直接放在页面上：如果上课或教职员需要，你必须让出教室；「空闲」只表示**没有被课表或征用占住**，
+  不代表里面没人——教室是共用的。
+
+### 3. 看某间教室 —— 所有角色
+- 当天课表画成**整点方格**：两小时的课就是**跨两格的一整块**，标签写真实时间（`13:00–14:50`），
+  绝不拆成两半。
+- 教室设施（座位数、插座、座位类型）。管理员可以修改；每次保存盖「最后核实」日期，从未核实过的房间
+  会在界面上说明。
+- 评价：一人一房一条星级 + 一条文字。学生可以写、改、删自己的；管理员可以删任何一条。
+
+### 4. 改教室使用时间 —— 管理员
+- **添加使用**：把空闲时间占掉（例如教室要办活动）；**释放时间**：把时间还回来。
+- 只按整块：起点整点、终点 `:50`，和一节课完全同规。
+- **学校课表优先级最高**：与课重叠的变更会被直接拒绝（`400 TIMETABLE_PRIORITY`），而不是默默忽略。
+- 每次变更都写理由、可以设到期时间自动失效，并写进审计日志。
+
+### 5. 管理账户 —— 超级管理员
+- 新建、改名、重置密码、提权 / 降权、删除账户。
+- 角色是分层的（`user` < `admin` < `superadmin`），所以超级管理员自动拥有管理员的全部权限。
+- 两条护栏：不能修改或删除自己的账户；最后一个超级管理员不能被降权或删除。
+
+### 角色与权限
+
+| 能力 | `user` | `admin` | `superadmin` |
+|---|---|---|---|
+| 查询教室、打开教室页 | ✓ | ✓ | ✓ |
+| 写 / 改 / 删自己的评价 | ✓ | ✓ | ✓ |
+| 锁定或释放教室时间（按整块） | — | ✓ | ✓ |
+| 编辑教室设施；删任何评价 | — | ✓ | ✓ |
+| 管理账户：增、提权降权、重置密码、删 | — | — | ✓ |
 
 ## 界面
 
@@ -36,8 +68,8 @@
 | ![查询](docs/images/find-a-room.png) | ![教室页](docs/images/room-page.png) |
 | **All rooms** | **管理端变更** |
 | ![全部教室](docs/images/all-rooms.png) | ![管理端](docs/images/admin-change.png) |
-| **设施编辑（仅管理员）** | |
-| ![设施](docs/images/facilities.png) | |
+| **设施编辑（仅管理员）** | **账户管理（仅超级管理员）** |
+| ![设施](docs/images/facilities.png) | ![账户](docs/images/accounts.png) |
 
 ## 怎么算的
 
@@ -60,7 +92,7 @@
 |---|---|---|
 | 起点整点、终点 `:50`（查询与管理员变更同规） | `AvailabilityService.requireSearchWindow` / `requireWholeHours` | `from=14:30` → `400`；`to=16:00` → `400` |
 | 管理员不得触碰课表里的课 | `UpdateService.create`（重叠判断） | 对课程时段发 `RELEASE`/`USE` → `400 TIMETABLE_PRIORITY` |
-| 只有管理员能发布变更 | `AuthService.require(token, "admin")` | 学生 token → `403 FORBIDDEN` |
+| 角色分层：`user` < `admin` < `superadmin` | `AuthService.require(token, minRole)` | 学生 token 调 `/updates` → `403`；管理员 token 调 `/accounts` → `403` |
 | 只有 `hku.hk` 邮箱能注册 | `AuthService.isHkuEmail` | `@gmail.com`、`@connect.hku.hk.evil.com` → `400` |
 | 每次变更可追溯、可到期失效 | `room_updates`、`audit_log` | `GET /api/audit` |
 
@@ -94,9 +126,10 @@ cd hku-empty-classroom
 |---|---|---|
 | `user1` | `user`（学生） | 只有查询与教室页——界面上不存在任何写入口 |
 | `admin1` | `admin` | 同一个应用，外加 *Change room use time*、设施编辑、审计 |
-| `teacher1` | `admin` | 第二个管理员，用来演示"管理员可以管理别的管理员提交的变更" |
+| `teacher1` | `admin` | 第二个管理员，演示「一个管理员可以管理另一个管理员提交的变更」 |
+| `super1` | `superadmin` | 以上全部，外加「账户管理」：新建、提权降权、重置密码、删除 |
 
-种子密码在 `backend/src/main/resources/db/migration/V2__seed.sql`（账号名在 `V5__account_names.sql` 中改过）。
+种子密码在 Flyway 迁移里：最初的三个账号见 `V2__seed.sql`（账号名在 `V5__account_names.sql` 中改过），`super1` 见 `V12__super_admin.sql`。
 
 停止：`./scripts/stop-all.sh`。单独启停某一层：`scripts/start-db.sh`、`start-backend.sh`、`start-frontend.sh`。
 
@@ -121,6 +154,10 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 | `PATCH` | `/api/rooms/{code}` | 编辑设施——仅管理员 |
 | `GET` | `/api/rooms/{code}/reviews`、`POST`、`DELETE /api/reviews/{id}` | 评价（一人一房一条） |
 | `GET` | `/api/audit` | 审计日志——仅管理员 |
+| `GET` | `/api/accounts` | 账户列表——**仅超级管理员** |
+| `POST` | `/api/accounts` | 新建账户（可指定角色）——仅超级管理员 |
+| `PATCH` | `/api/accounts/{id}` | 改名、重置密码、提权 / 降权——仅超级管理员 |
+| `DELETE` | `/api/accounts/{id}` | 删除账户——仅超级管理员 |
 
 ## 测试
 
@@ -128,7 +165,7 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 ./scripts/test.sh        # 需要数据库在跑；脚本会先确保库起来
 ```
 
-**21 个自动化用例全部通过**（9 个区间运算纯函数测试 + 10 个可用性/规则测试 + 2 个注册规则测试）。报告里会引用的边界算例：
+**25 个自动化用例全部通过**（9 个区间运算 + 10 个可用性/规则 + 2 个注册规则 + 4 个角色与账户管理测试）。报告里会引用的边界算例：
 
 | 算例 | 测试方法 | |
 |---|---|---|
@@ -142,6 +179,7 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 | 非整点时间被拒绝 | `offHourTimesAreRejected` | ✓ |
 | 两小时的课是一整块（跨两格） | `timelineMergesWholeHourBlocks` | ✓ |
 | 只有 `hku.hk` 邮箱能注册 | `RegistrationRulesTest`（2 例） | ✓ |
+| 角色分层、账户管理有护栏 | `AccountRulesTest`（4 例） | ✓ |
 
 测试用 `@Transactional`，跑完自动回滚，**不会污染演示数据**。
 

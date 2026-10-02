@@ -6,7 +6,8 @@ const routes = [
   { path: '/login', component: () => import('./views/Login.vue') },
   { path: '/find', component: () => import('./views/FindRoom.vue') },
   { path: '/rooms', component: () => import('./views/AllRooms.vue') },
-  { path: '/manage', component: () => import('./views/AdminUpdates.vue'), meta: { admin: true } }
+  { path: '/manage', component: () => import('./views/AdminUpdates.vue'), meta: { admin: true } },
+  { path: '/accounts', component: () => import('./views/Accounts.vue'), meta: { superadmin: true } }
 ]
 
 const router = createRouter({ history: createWebHistory(), routes })

@@ -61,7 +61,7 @@ public class ReviewController {
             return ResponseEntity.status(401).body(new Dtos.ApiError("UNAUTHORIZED", "Sign in first"));
         }
         try {
-            reviews.delete(id, s.username(), "admin".equals(s.role()));
+            reviews.delete(id, s.username(), AuthService.atLeast(s.role(), "admin"));
             return ResponseEntity.ok(Map.of("deleted", id));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new Dtos.ApiError("BAD_REVIEW", e.getMessage()));

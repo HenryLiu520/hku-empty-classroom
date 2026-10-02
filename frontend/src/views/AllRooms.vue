@@ -174,7 +174,7 @@ import { useApiError } from '../i18n/apiError'
 const { t } = useI18n()
 const apiError = useApiError()
 const auth = useAuthStore()
-const isAdmin = computed(() => auth.role === 'admin')
+const isAdmin = computed(() => auth.isAdmin)
 
 const editing = ref(false)
 const savingFacilities = ref(false)

@@ -94,5 +94,14 @@ public final class Dtos {
     /** 自助注册：邮箱 + 密码；邮箱后缀必须在接口层卡成 HKU 的 */
     public record RegisterRequest(String username, String email, String password) { }
 
+    /** 账户管理（仅超级管理员）：列表用 */
+    public record AccountView(Long id, String username, String displayName, String role, String email) { }
+
+    /** 账户管理：新建账户。role 必须是 user / admin / superadmin */
+    public record AccountRequest(String username, String displayName, String email, String password, String role) { }
+
+    /** 账户管理：改账户（字段都可选，给了才改）。role 用于提权 / 降权 */
+    public record AccountUpdateRequest(String displayName, String email, String password, String role) { }
+
     public record ApiError(String error, String message) { }
 }

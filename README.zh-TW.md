@@ -19,14 +19,46 @@
 
 ## 功能
 
-- **查詢** —— 選日期、樓棟、時間窗（`14:00 → 15:50`），列出整段都空著的教室；每條結果標明「現在可用 / 稍後可用 / 正在使用」。
-- **每間教室有自己的頁面** —— 當天課表畫成**以整點為格、以整塊為單位的方格**（兩小時的課就是跨兩格的一整塊，標籤寫真實時間 `13:00–14:50`）、設施（座位數、插座、座位類型）、以及其他同學的評價。
-- **All rooms** —— 不按時間過濾的完整教室列表，可排序。
-- **評價** —— 一人一房一條星級；管理員可刪任何一條，刪除留審計。
-- **設施編輯** —— 座位數／插座／座位類型**只有管理員能改**；每次儲存蓋上「最後核實時間」，從未核實過的房間在介面上明確標註。
-- **管理端變更** —— 管理員可以**新增使用（add use）**或**釋放時間（release）**，每次變更都有到期時間與審計記錄。
-- **三種語言** —— 整個介面可在頂欄（和登入頁）切換 英文 / 簡體中文 / 繁體中文，選擇會被記住。
-- **註冊** —— 任何 `hku.hk` 後綴的信箱（`@connect.hku.hk`、`@hku.hk` 等）都可以用信箱＋密碼註冊學生帳號。原型階段**不發驗證信**。
+下面按**一個人實際會遇到的順序**排：登入 → 找空教室 → 看某間教室 → （有權限才有的）改教室時間、管理帳號。
+
+### 1. 登入
+- 可以用 HKU 信箱自助註冊（`@connect.hku.hk`、`@hku.hk` 等）：信箱 + 密碼，原型階段不發驗證信。
+  帳號也可以由超級管理員直接建立。
+- 種子帳號涵蓋三種角色（見「快速開始」）。
+
+### 2. 找空教室 —— 所有角色
+- 選日期、樓棟、時間窗（`14:00 → 15:50`），列出整段都空著的教室；每條結果標明「現在可用 / 稍後可用
+  / 正在使用」，以及下一節課什麼時候開始。排序可按：空檔最長、房號、樓棟、座位最多。
+- 兩條提醒直接放在頁面上：如果上課或教職員需要，你必須讓出教室；「空檔」只表示**沒有被課表或徵用佔住**，
+  不代表裡面沒人——教室是共用的。
+
+### 3. 看某間教室 —— 所有角色
+- 當天課表畫成**整點方格**：兩小時的課就是**跨兩格的一整塊**，標籤寫真實時間（`13:00–14:50`），
+  絕不拆成兩半。
+- 教室設施（座位數、插座、座位類型）。管理員可以修改；每次儲存蓋「最後核實」日期，從未核實過的房間
+  會在介面上說明。
+- 評價：一人一房一則星級 + 一則文字。學生可以寫、改、刪自己的；管理員可以刪任何一則。
+
+### 4. 改教室使用時間 —— 管理員
+- **新增使用**：把空檔佔掉（例如教室要辦活動）；**釋放時間**：把時間還回來。
+- 只按整塊：起點整點、終點 `:50`，和一節課完全同規。
+- **學校課表優先級最高**：與課重疊的變更會被直接拒絕（`400 TIMETABLE_PRIORITY`），而不是默默忽略。
+- 每次變更都寫理由、可以設到期時間自動失效，並寫進稽核日誌。
+
+### 5. 管理帳號 —— 超級管理員
+- 新增、改名、重設密碼、提權 / 降權、刪除帳號。
+- 角色是分層的（`user` < `admin` < `superadmin`），所以超級管理員自動擁有管理員的全部權限。
+- 兩條護欄：不能修改或刪除自己的帳號；最後一個超級管理員不能被降權或刪除。
+
+### 角色與權限
+
+| 能力 | `user` | `admin` | `superadmin` |
+|---|---|---|---|
+| 查詢教室、打開教室頁 | ✓ | ✓ | ✓ |
+| 寫 / 改 / 刪自己的評價 | ✓ | ✓ | ✓ |
+| 鎖定或釋放教室時間（按整塊） | — | ✓ | ✓ |
+| 編輯教室設施；刪任何評價 | — | ✓ | ✓ |
+| 管理帳號：新增、提權降權、重設密碼、刪除 | — | — | ✓ |
 
 ## 介面
 
@@ -36,8 +68,8 @@
 | ![查詢](docs/images/find-a-room.png) | ![教室頁](docs/images/room-page.png) |
 | **All rooms** | **管理端變更** |
 | ![全部教室](docs/images/all-rooms.png) | ![管理端](docs/images/admin-change.png) |
-| **設施編輯（僅管理員）** | |
-| ![設施](docs/images/facilities.png) | |
+| **設施編輯（僅管理員）** | **帳號管理（僅超級管理員）** |
+| ![設施](docs/images/facilities.png) | ![帳號](docs/images/accounts.png) |
 
 ## 怎麼算的
 
@@ -62,7 +94,7 @@
 |---|---|---|
 | 起點整點、終點 `:50`（查詢與管理員變更同規） | `AvailabilityService.requireSearchWindow` / `requireWholeHours` | `from=14:30` → `400`；`to=16:00` → `400` |
 | 管理員不得觸碰課表裡的課 | `UpdateService.create`（重疊判斷） | 對課程時段發 `RELEASE`/`USE` → `400 TIMETABLE_PRIORITY` |
-| 只有管理員能發布變更 | `AuthService.require(token, "admin")` | 學生 token → `403 FORBIDDEN` |
+| 角色分層：`user` < `admin` < `superadmin` | `AuthService.require(token, minRole)` | 學生 token 呼叫 `/updates` → `403`；管理員 token 呼叫 `/accounts` → `403` |
 | 只有 `hku.hk` 信箱能註冊 | `AuthService.isHkuEmail` | `@gmail.com`、`@connect.hku.hk.evil.com` → `400` |
 | 每次變更可追溯、可到期失效 | `room_updates`、`audit_log` | `GET /api/audit` |
 
@@ -96,9 +128,10 @@ cd hku-empty-classroom
 |---|---|---|
 | `user1` | `user`（學生） | 只有查詢與教室頁——介面上不存在任何寫入入口 |
 | `admin1` | `admin` | 同一個應用，外加 *Change room use time*、設施編輯、審計 |
-| `teacher1` | `admin` | 第二個管理員，用來示範「管理員可以管理別的管理員提交的變更」 |
+| `teacher1` | `admin` | 第二個管理員，示範「一個管理員可以管理另一個管理員提交的變更」 |
+| `super1` | `superadmin` | 以上全部，外加「帳號管理」：新增、提權降權、重設密碼、刪除 |
 
-種子密碼在 `backend/src/main/resources/db/migration/V2__seed.sql`（帳號名在 `V5__account_names.sql` 中改過）。
+種子密碼在 Flyway 遷移裡：最初的三個帳號見 `V2__seed.sql`（帳號名在 `V5__account_names.sql` 中改過），`super1` 見 `V12__super_admin.sql`。
 
 停止：`./scripts/stop-all.sh`。單獨啟停某一層：`scripts/start-db.sh`、`start-backend.sh`、`start-frontend.sh`。
 
@@ -123,6 +156,10 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 | `PATCH` | `/api/rooms/{code}` | 編輯設施——僅管理員 |
 | `GET` | `/api/rooms/{code}/reviews`、`POST`、`DELETE /api/reviews/{id}` | 評價（一人一房一條） |
 | `GET` | `/api/audit` | 審計日誌——僅管理員 |
+| `GET` | `/api/accounts` | 帳號列表——**僅超級管理員** |
+| `POST` | `/api/accounts` | 新增帳號（可指定角色）——僅超級管理員 |
+| `PATCH` | `/api/accounts/{id}` | 改名、重設密碼、提權 / 降權——僅超級管理員 |
+| `DELETE` | `/api/accounts/{id}` | 刪除帳號——僅超級管理員 |
 
 ## 測試
 
@@ -130,7 +167,7 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 ./scripts/test.sh        # 需要資料庫在跑；腳本會先確保資料庫起來
 ```
 
-**21 個自動化用例全部通過**（9 個區間運算純函式測試 + 10 個可用性／規則測試 + 2 個註冊規則測試）。報告裡會引用的邊界算例：
+**25 個自動化用例全部通過**（9 個區間運算 + 10 個可用性／規則 + 2 個註冊規則 + 4 個角色與帳號管理測試）。報告裡會引用的邊界算例：
 
 | 算例 | 測試方法 | |
 |---|---|---|
@@ -144,6 +181,7 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 | 非整點時間被拒絕 | `offHourTimesAreRejected` | ✓ |
 | 兩小時的課是一整塊（跨兩格） | `timelineMergesWholeHourBlocks` | ✓ |
 | 只有 `hku.hk` 信箱能註冊 | `RegistrationRulesTest`（2 例） | ✓ |
+| 角色分層、帳號管理有護欄 | `AccountRulesTest`（4 例） | ✓ |
 
 測試用 `@Transactional`，跑完自動回滾，**不會污染示範資料**。
 

@@ -28,7 +28,8 @@
 
       <div class="foot">
         <template v-if="mode === 'login'">
-          {{ t('login.demo') }} &middot; user1 / user123 &nbsp;|&nbsp; admin1 / admin123<br />
+          {{ t('login.demo') }} &middot; user1 / user123 &nbsp;|&nbsp; admin1 / admin123
+          &nbsp;|&nbsp; super1 / super123<br />
           <a href="#" @click.prevent="switchToRegister">{{ t('login.createLink') }}</a>
         </template>
         <template v-else>
@@ -89,7 +90,7 @@ async function submit() {
       ? await auth.register(username.value, email.value, password.value)
       : await auth.login(username.value, password.value)
     ElMessage.success(t(signUp ? 'login.created' : 'login.signedIn', { name: data.displayName }))
-    router.push(data.role === 'admin' ? '/manage' : '/find')
+    router.push(['admin', 'superadmin'].includes(data.role) ? '/manage' : '/find')
   } catch (e) {
     error.value = apiError(e, signUp ? 'login.errSignUp' : 'login.errSignIn')
   } finally {

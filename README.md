@@ -19,14 +19,52 @@ This project joins the two things that decide whether a room is usable — the *
 
 ## What it does
 
-- **Search** — pick a day, a building and a time window (`14:00 → 15:50`) and see which rooms are free for all of it. Each result says whether the room is free now, free later, or in use.
-- **Every room has a page** — its timetable for the day as an hour-block grid: one cell per hour, where a two-hour class is a single block spanning two cells, labelled with its real times (`13:00–14:50`), its facilities (seats, sockets, seat type), and reviews from other students.
-- **All rooms** — the full room list with sorting, independent of any time filter.
-- **Reviews** — one star rating per person per room; administrators can remove any review, and removals are logged.
-- **Facility edits** — seats / sockets / seat type are editable **only by administrators**; each save stamps a "last verified" time, and rooms that have never been verified say so on screen.
-- **Staff changes** — an administrator can **add a use** of a room or **release** time, and every change carries an expiry date and an audit entry.
-- **Three languages** — the whole interface switches between English, 简体中文 and 繁體中文 from the header (and from the sign-in page), and the choice is remembered.
-- **Sign-up** — anyone with an `hku.hk` address (`@connect.hku.hk`, `@hku.hk`, …) can create a student account with an email and a password. The prototype sends no verification email.
+The order below is the order a person actually meets the system: sign in, look for a free room, open
+a room, and — only if the account is allowed to — change room time or manage accounts.
+
+### 1. Sign in
+- Self sign-up with an HKU address (`@connect.hku.hk`, `@hku.hk`, …): email and password, no
+  verification mail in the prototype. Accounts can also be created by a super administrator.
+- Seeded accounts cover all three roles (see *Quick start*).
+
+### 2. Find a free room — everyone
+- Pick a day, a building and a time window (`14:00 → 15:50`) and see which rooms are free for all of
+  it. Each result says whether the room is free now, free later, or in use, and when its next class
+  starts. Sorting: longest free window, room code, building, or most seats.
+- Two warnings sit on the page rather than in a footnote: a room must be given up if a class or a
+  member of staff needs it, and "free" means *not timetabled or taken*, not *empty* — rooms are shared.
+
+### 3. Open a room — everyone
+- The day as whole-hour blocks. A two-hour class is **one block spanning two hours**, labelled with
+  its real times (`13:00–14:50`), never split into two halves.
+- The room's facilities (seats, sockets, seat type). Administrators can edit them; every save stamps a
+  "last verified" date, and a room that has never been verified says so on screen.
+- Reviews: one star rating and one review per person per room. A student can write, change and delete
+  their own; an administrator can remove any of them.
+
+### 4. Change room use time — administrators
+- **Add use** takes free hours away (an event needs the room); **release** gives hours back.
+- Whole blocks only: a change starts on the hour and ends at `:50`, exactly like a class.
+- The University timetable always wins. A change that would overlap a class is rejected outright with
+  `400 TIMETABLE_PRIORITY` instead of being silently ignored.
+- Every change carries a reason, expires on its own when given an expiry, and is written to the audit log.
+
+### 5. Manage accounts — super administrators
+- Create, rename, reset the password of, promote or demote, and delete accounts.
+- Roles are layered (`user` < `admin` < `superadmin`), so a super administrator also holds every
+  administrator permission.
+- Two safeguards: you cannot change or delete your own account, and the last super administrator
+  cannot be demoted or deleted.
+
+### Roles and permissions
+
+| Capability | `user` | `admin` | `superadmin` |
+|---|---|---|---|
+| Search rooms and open room pages | ✓ | ✓ | ✓ |
+| Write, change and delete your own review | ✓ | ✓ | ✓ |
+| Lock or release a room's time (whole hours) | — | ✓ | ✓ |
+| Edit room facilities; remove any review | — | ✓ | ✓ |
+| Manage accounts: create, promote/demote, reset password, delete | — | — | ✓ |
 
 ## Screenshots
 
@@ -36,8 +74,8 @@ This project joins the two things that decide whether a room is usable — the *
 | ![Search](docs/images/find-a-room.png) | ![Room page](docs/images/room-page.png) |
 | **All rooms** | **Staff change screen** |
 | ![All rooms](docs/images/all-rooms.png) | ![Admin](docs/images/admin-change.png) |
-| **Facilities edit (administrators only)** | |
-| ![Facilities](docs/images/facilities.png) | |
+| **Facilities edit (administrators only)** | **Accounts (super administrators only)** |
+| ![Facilities](docs/images/facilities.png) | ![Accounts](docs/images/accounts.png) |
 
 ## How it works
 
@@ -60,7 +98,7 @@ Where the busy blocks come from is the part that matters most:
 |---|---|---|
 | Start on the hour, end at `:50` (searches and staff changes alike) | `AvailabilityService.requireSearchWindow` / `requireWholeHours` | `from=14:30` → `400`; `to=16:00` → `400` |
 | Staff changes may not touch class time | `UpdateService.create` (overlap test) | `RELEASE`/`USE` over a class → `400 TIMETABLE_PRIORITY` |
-| Only administrators can post changes | `AuthService.require(token, "admin")` | student token → `403 FORBIDDEN` |
+| Roles are layered: `user` < `admin` < `superadmin` | `AuthService.require(token, minRole)` | a student token on `/updates` → `403`; an administrator token on `/accounts` → `403` |
 | Only `hku.hk` addresses can register | `AuthService.isHkuEmail` | `@gmail.com` and `@connect.hku.hk.evil.com` → `400` |
 | Every change is attributed and expirable | `room_updates`, `audit_log` | `GET /api/audit` |
 
@@ -94,9 +132,10 @@ Then open **http://localhost:5173/login** and sign in:
 |---|---|---|
 | `user1` | `user` (student) | Search and room pages only — no write control exists in the UI |
 | `admin1` | `admin` | The same app plus *Change room use time*, facility editing, and the audit trail |
-| `teacher1` | `admin` | A second administrator, used to demonstrate managing another admin's changes |
+| `teacher1` | `admin` | A second administrator, to show that one administrator can manage another's changes |
+| `super1` | `superadmin` | Everything above plus *Accounts*: create, promote/demote, reset password, delete |
 
-Seeded passwords are in `backend/src/main/resources/db/migration/V2__seed.sql` (accounts renamed in `V5__account_names.sql`).
+Seeded passwords are in the Flyway migrations: `V2__seed.sql` (renamed in `V5__account_names.sql`) for the original three accounts, and `V12__super_admin.sql` for `super1`.
 
 Stop everything with `./scripts/stop-all.sh`. Layers can be started individually with `scripts/start-db.sh`, `start-backend.sh`, `start-frontend.sh`.
 
@@ -121,6 +160,10 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 | `PATCH` | `/api/rooms/{code}` | Edit facilities — administrators only |
 | `GET` | `/api/rooms/{code}/reviews` · `POST` · `DELETE /api/reviews/{id}` | Reviews (one per person per room) |
 | `GET` | `/api/audit` | Audit trail — administrators only |
+| `GET` | `/api/accounts` | List accounts — **super administrators only** |
+| `POST` | `/api/accounts` | Create an account, with its role — super administrators only |
+| `PATCH` | `/api/accounts/{id}` | Rename, reset password, promote or demote — super administrators only |
+| `DELETE` | `/api/accounts/{id}` | Delete an account — super administrators only |
 
 ## Tests
 
@@ -128,7 +171,7 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 ./scripts/test.sh        # needs the database running; the script starts it if needed
 ```
 
-**21 automated tests, all passing** (9 interval-maths unit tests, 10 availability/rule tests, 2 sign-up rule tests). The boundary cases the report leans on:
+**25 automated tests, all passing** (9 interval-maths, 10 availability/rule, 2 sign-up rule, 4 role and account-management tests). The boundary cases the report leans on:
 
 | Case | Test | |
 |---|---|---|
@@ -142,6 +185,7 @@ curl -s "http://localhost:8080/api/availability?date=$(date +%F)&building=CPD&fr
 | Non-hour times are rejected | `offHourTimesAreRejected` | ✓ |
 | A two-hour class is one block spanning two hours | `timelineMergesWholeHourBlocks` | ✓ |
 | Only `hku.hk` addresses may register | `RegistrationRulesTest` (2 cases) | ✓ |
+| Roles are layered and account management is guarded | `AccountRulesTest` (4 cases) | ✓ |
 
 Tests are `@Transactional` and roll back, so running them never pollutes the demo data.
 

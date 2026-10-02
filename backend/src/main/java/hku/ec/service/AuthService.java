@@ -62,14 +62,33 @@ public class AuthService {
     public Session require(String token, String role) {
         Session s = resolve(token)
                 .orElseThrow(() -> new IllegalStateException("UNAUTHORIZED"));
-        if (role != null && !role.equals(s.role())) {
+        if (role != null && !atLeast(s.role(), role)) {
             throw new IllegalStateException("FORBIDDEN");
         }
         return s;
     }
 
+    /**
+     * 角色等级：user(1) < admin(2) < superadmin(3)。
+     * 判定用"至少"而不是"等于"，所以 superadmin 自动拥有它下面所有角色的权限。
+     */
+    private static final java.util.Map<String, Integer> RANK = java.util.Map.of(
+            "user", 1, "admin", 2, "superadmin", 3);
+
+    public static boolean atLeast(String role, String minRole) {
+        // 要求一个不存在的角色时一律拒绝（否则把 "admin" 拼错就等于对所有人放行）
+        Integer need = RANK.get(minRole == null ? "" : minRole.toLowerCase());
+        if (need == null) return false;
+        int have = RANK.getOrDefault(role == null ? "" : role.toLowerCase(), 0);
+        return have >= need;
+    }
+
+    public static boolean isKnownRole(String role) {
+        return role != null && RANK.containsKey(role.toLowerCase());
+    }
+
     public boolean isAdmin(String token) {
-        return resolve(token).map(s -> "admin".equals(s.role())).orElse(false);
+        return resolve(token).map(s -> atLeast(s.role(), "admin")).orElse(false);
     }
 
     /**

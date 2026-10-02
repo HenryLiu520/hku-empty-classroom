@@ -7,9 +7,25 @@ export default {
     app: { name: 'Empty Classroom' },
     nav: {
       home: 'Home', find: 'Find a room', rooms: 'All rooms',
-      manage: 'Change room use time', signOut: 'Sign out'
+      manage: 'Change room use time', signOut: 'Sign out', accounts: 'Accounts'
     },
     lang: { label: 'Language' },
+    roles: {
+      user: 'Student (read only)', admin: 'Administrator', superadmin: 'Super administrator'
+    },
+    accounts: {
+      title: 'Accounts', subtitle: 'only a super administrator can open this page',
+      roleHint: 'Roles are layered: a student can read; an administrator can also lock or release '
+        + 'room time; a super administrator can also manage accounts, including promoting and '
+        + 'demoting them.',
+      newAccount: 'New account', username: 'Username', displayName: 'Display name',
+      email: 'HKU email', emailOptional: 'Optional, but must end in hku.hk',
+      role: 'Role', actions: 'Actions', changeRole: 'Change role',
+      resetPassword: 'Reset password', newPassword: 'New password',
+      created: 'Account created', roleChanged: 'Role updated', passwordChanged: 'Password updated',
+      deleted: 'Account deleted', loadFailed: 'Could not load the accounts',
+      saveFailed: 'Could not save the account', deleteFailed: 'Could not delete the account'
+    },
     common: {
       date: 'Date', refresh: 'Refresh', save: 'Save', cancel: 'Cancel',
       edit: 'Edit', delete: 'Delete', yes: 'Yes', no: 'No', none: '—', floor: 'Floor'
@@ -132,9 +148,24 @@ export default {
     app: { name: '空教室查询' },
     nav: {
       home: '首页', find: '查空教室', rooms: '所有教室',
-      manage: '修改教室使用时间', signOut: '退出登录'
+      manage: '修改教室使用时间', signOut: '退出登录', accounts: '账户管理'
     },
     lang: { label: '语言' },
+    roles: {
+      user: '普通用户（只浏览）', admin: '管理员', superadmin: '超级管理员'
+    },
+    accounts: {
+      title: '账户管理', subtitle: '只有超级管理员能打开这个页面',
+      roleHint: '角色是分层的：普通用户只能浏览；管理员还可以锁定或释放教室时间；'
+        + '超级管理员还可以管理账户，包括提权和降权。',
+      newAccount: '新建账户', username: '用户名', displayName: '显示名',
+      email: 'HKU 邮箱', emailOptional: '可留空；填了必须是 hku.hk 后缀',
+      role: '角色', actions: '操作', changeRole: '改角色',
+      resetPassword: '重置密码', newPassword: '新密码',
+      created: '账户已创建', roleChanged: '角色已更新', passwordChanged: '密码已更新',
+      deleted: '账户已删除', loadFailed: '无法加载账户列表',
+      saveFailed: '账户保存失败', deleteFailed: '账户删除失败'
+    },
     common: {
       date: '日期', refresh: '刷新', save: '保存', cancel: '取消',
       edit: '编辑', delete: '删除', yes: '是', no: '否', none: '—', floor: '楼层'
@@ -250,9 +281,24 @@ export default {
     app: { name: '空教室查詢' },
     nav: {
       home: '首頁', find: '查空教室', rooms: '所有教室',
-      manage: '修改教室使用時間', signOut: '登出'
+      manage: '修改教室使用時間', signOut: '登出', accounts: '帳號管理'
     },
     lang: { label: '語言' },
+    roles: {
+      user: '一般使用者（僅瀏覽）', admin: '管理員', superadmin: '超級管理員'
+    },
+    accounts: {
+      title: '帳號管理', subtitle: '只有超級管理員能打開這個頁面',
+      roleHint: '角色是分層的：一般使用者只能瀏覽；管理員還可以鎖定或釋放教室時間；'
+        + '超級管理員還可以管理帳號，包括提權與降權。',
+      newAccount: '新增帳號', username: '使用者名稱', displayName: '顯示名稱',
+      email: 'HKU 信箱', emailOptional: '可留空；填了必須是 hku.hk 後綴',
+      role: '角色', actions: '操作', changeRole: '改角色',
+      resetPassword: '重設密碼', newPassword: '新密碼',
+      created: '帳號已建立', roleChanged: '角色已更新', passwordChanged: '密碼已更新',
+      deleted: '帳號已刪除', loadFailed: '無法載入帳號列表',
+      saveFailed: '帳號儲存失敗', deleteFailed: '帳號刪除失敗'
+    },
     common: {
       date: '日期', refresh: '重新整理', save: '儲存', cancel: '取消',
       edit: '編輯', delete: '刪除', yes: '是', no: '否', none: '—', floor: '樓層'
