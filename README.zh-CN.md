@@ -70,8 +70,8 @@
 |---|---|
 | **按时间窗查询** | **教室详情页** |
 | ![查询](docs/images/find-a-room.png) | ![教室页](docs/images/room-page.png) |
-| **全部教室** | **管理端变更** |
-| ![全部教室](docs/images/all-rooms.png) | ![管理端](docs/images/admin-change.png) |
+| **浏览教室** | **管理端变更** |
+| ![浏览教室](docs/images/all-rooms.png) | ![管理端](docs/images/admin-change.png) |
 | **设施编辑（仅管理员）** | **账户管理（仅超级管理员）** |
 | ![设施](docs/images/facilities.png) | ![账户](docs/images/accounts.png) |
 

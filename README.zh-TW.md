@@ -70,8 +70,8 @@
 |---|---|
 | **按時間窗查詢** | **教室詳情頁** |
 | ![查詢](docs/images/find-a-room.png) | ![教室頁](docs/images/room-page.png) |
-| **全部教室** | **管理端變更** |
-| ![全部教室](docs/images/all-rooms.png) | ![管理端](docs/images/admin-change.png) |
+| **瀏覽教室** | **管理端變更** |
+| ![瀏覽教室](docs/images/all-rooms.png) | ![管理端](docs/images/admin-change.png) |
 | **設施編輯（僅管理員）** | **帳號管理（僅超級管理員）** |
 | ![設施](docs/images/facilities.png) | ![帳號](docs/images/accounts.png) |
 

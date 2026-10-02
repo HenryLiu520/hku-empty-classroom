@@ -151,7 +151,7 @@ export default {
   'zh-CN': {
     app: { name: '空教室查询' },
     nav: {
-      home: '首页', find: '查空教室', rooms: '全部教室',
+      home: '首页', find: '查空教室', rooms: '浏览教室',
       manage: '修改教室使用时间', signOut: '退出登录', accounts: '账户管理'
     },
     lang: { label: '语言' },
@@ -287,7 +287,7 @@ export default {
   'zh-TW': {
     app: { name: '空教室查詢' },
     nav: {
-      home: '首頁', find: '查空教室', rooms: '全部教室',
+      home: '首頁', find: '查空教室', rooms: '瀏覽教室',
       manage: '修改教室使用時間', signOut: '登出', accounts: '帳號管理'
     },
     lang: { label: '語言' },
