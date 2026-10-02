@@ -1,0 +1,16 @@
+# 依赖与构建产物
+node_modules/
+backend/target/
+frontend/dist/
+
+# 数据库数据与日志（本地实例，绝不入库）
+db/
+logs/
+*.log
+
+# 本机/编辑器
+.DS_Store
+.idea/
+.vscode/
+*.iml
+.env
