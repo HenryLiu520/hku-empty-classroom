@@ -95,7 +95,7 @@
           </div>
         </div>
         <div class="tl-axis" :style="gridStyle">
-          <span v-for="(h, i) in axisHours" :key="i">{{ i % 2 === 0 ? h : '' }}</span>
+          <span v-for="(h, i) in axisHours" :key="i">{{ h }}</span>
         </div>
         <p class="tl-note">{{ tlNote }}</p>
         <div class="legend">
@@ -351,8 +351,8 @@ async function refreshAll() {
 .free { background: #7BC96F; }
 .buf { background: repeating-linear-gradient(45deg, #E4E7ED, #E4E7ED 4px, #F5F7FA 4px, #F5F7FA 8px); color: #8A94A6; }
 .cell.busy, .cell.free { min-width: 0; }
-.tl-axis { display: grid; gap: 2px; margin-top: 4px; color: #8A94A6; font-size: 10px; }
-.tl-axis span { overflow: hidden; white-space: nowrap; }
+.tl-axis { display: grid; gap: 2px; margin-top: 5px; color: #8A94A6; font-size: 9px; }
+.tl-axis span { text-align: center; overflow: hidden; white-space: nowrap; }
 .tl-note { margin: 8px 0 0; color: #606266; font-size: 12px; }
 .legend { display: flex; gap: 18px; margin-top: 10px; color: #606266; font-size: 12px; }
 .sw { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; }
