@@ -70,7 +70,7 @@
 |---|---|
 | **按時間窗查詢** | **教室詳情頁** |
 | ![查詢](docs/images/find-a-room.png) | ![教室頁](docs/images/room-page.png) |
-| **All rooms** | **管理端變更** |
+| **全部教室** | **管理端變更** |
 | ![全部教室](docs/images/all-rooms.png) | ![管理端](docs/images/admin-change.png) |
 | **設施編輯（僅管理員）** | **帳號管理（僅超級管理員）** |
 | ![設施](docs/images/facilities.png) | ![帳號](docs/images/accounts.png) |
@@ -131,7 +131,7 @@ cd hku-empty-classroom
 | 帳號 | 角色 | 能看到什麼 |
 |---|---|---|
 | `user1` | `user`（學生） | 只有查詢與教室頁——介面上不存在任何寫入入口 |
-| `admin1` | `admin` | 同一個應用，外加 *Change room use time*、設施編輯、審計 |
+| `admin1` | `admin` | 同一個應用，外加 *修改教室使用時間*、設施編輯、審計 |
 | `teacher1` | `admin` | 第二個管理員，示範「一個管理員可以管理另一個管理員提交的變更」 |
 | `super1` | `superadmin` | 以上全部，外加「帳號管理」：新增、提權降權、重設密碼、刪除 |
 
