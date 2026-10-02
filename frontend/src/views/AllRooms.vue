@@ -151,6 +151,9 @@
               <el-button v-if="it.mine" link type="danger" size="small" @click="removeReview(it.id)">
                 {{ t('common.delete') }}
               </el-button>
+              <el-button v-else-if="isAdmin" link type="danger" size="small" @click="removeReview(it.id, true)">
+                {{ t('rooms.deleteOthers') }}
+              </el-button>
             </div>
             <div class="rev-body">{{ it.body }}</div>
           </div>
@@ -166,7 +169,7 @@
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api'
 import { useAuthStore } from '../stores/auth'
 import { useApiError } from '../i18n/apiError'
@@ -311,7 +314,19 @@ async function submitReview() {
   }
 }
 
-async function removeReview(id) {
+async function removeReview(id, others) {
+  // 删自己的直接删；删别人的（管理员 / 超级管理员）先确认一下
+  if (others) {
+    try {
+      await ElMessageBox.confirm(t('rooms.confirmDeleteOthers'), t('rooms.deleteOthers'), {
+        confirmButtonText: t('common.delete'),
+        cancelButtonText: t('common.cancel'),
+        type: 'warning'
+      })
+    } catch (e) {
+      return
+    }
+  }
   try {
     await api.delete(`/reviews/${id}`)
     ElMessage.success(t('rooms.reviewDeleted'))
