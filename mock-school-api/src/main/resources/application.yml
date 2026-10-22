@@ -1,0 +1,16 @@
+server:
+  port: 9000
+  # 测试替身，只听本机
+  address: 127.0.0.1
+
+spring:
+  application:
+    name: mock-school-api
+
+app:
+  # 真接口不会裸奔：调用方必须带 X-Api-Key。演示用的键，可被环境变量覆盖。
+  api-key: ${MOCK_API_KEY:hku-demo-key}
+
+logging:
+  level:
+    root: warn
