@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="620" viewBox="0 0 1180 620">
+<defs>
+  <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 z" fill="#024638"/>
+  </marker>
+  <marker id="ahg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0 0 L10 5 L0 10 z" fill="#8a6d2f"/>
+  </marker>
+</defs>
+<rect width="1180" height="620" fill="#fff"/>
+<text x="28" y="32" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="17" font-weight="700" fill="#024638" text-anchor="start">How the phone client reaches the same backend</text>
+<text x="28" y="52" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="11.5" font-weight="400" fill="#5c6b67" text-anchor="start">One API, two front ends. The backend does not know the phone app exists.</text>
+<rect x="24" y="84" width="368" height="472" rx="14" fill="#f4f8f6" stroke="#024638" stroke-width="1.6"/>
+<text x="44" y="110" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="14.5" font-weight="700" fill="#024638" text-anchor="start">Phone client · mobile/</text>
+<text x="44" y="127" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="10" font-weight="400" fill="#5c6b67" text-anchor="start">Vue 3 + Vite · localhost:5174</text>
+<rect x="44" y="148" width="150" height="306" rx="20" fill="#fff" stroke="#024638" stroke-width="1.5"/>
+<rect x="96" y="156" width="46" height="5" rx="3" fill="#d8e4df" stroke="#d8e4df" stroke-width="0"/>
+<rect x="50" y="168" width="138" height="18" fill="#024638" rx="0"/>
+<text x="56" y="181" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="8.6" font-weight="700" fill="#fff" text-anchor="start">Empty Classroom</text>
+<rect x="50" y="192" width="138" height="28" rx="6" fill="#f7faf9" stroke="#c9d4d0" stroke-width="1"/>
+<text x="56" y="210" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="7.2" font-weight="400" fill="#5c6b67" text-anchor="start">Building · Date · From · To</text>
+<rect x="50" y="226" width="138" height="24" rx="6" fill="#024638" stroke="None" stroke-width="0"/>
+<text x="104" y="242" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="8.2" font-weight="700" fill="#fff" text-anchor="start">Search</text>
+<rect x="50" y="260" width="138" height="32" rx="6" fill="#fff" stroke="#c9d4d0" stroke-width="1"/>
+<text x="56" y="273" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="8.2" font-weight="650" fill="#111" text-anchor="start">CPD-1.09</text>
+<text x="56" y="286" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="7.0" font-weight="400" fill="#5c6b67" text-anchor="start">free 15:00–16:50</text>
+<rect x="50" y="298" width="138" height="32" rx="6" fill="#fff" stroke="#c9d4d0" stroke-width="1"/>
+<text x="56" y="311" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="8.2" font-weight="650" fill="#111" text-anchor="start">KK-101</text>
+<text x="56" y="324" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="7.0" font-weight="400" fill="#5c6b67" text-anchor="start">free 15:00–16:50</text>
+<rect x="50" y="336" width="138" height="32" rx="6" fill="#fff" stroke="#c9d4d0" stroke-width="1"/>
+<text x="56" y="349" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="8.2" font-weight="650" fill="#111" text-anchor="start">MB-121</text>
+<text x="56" y="362" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="7.0" font-weight="400" fill="#5c6b67" text-anchor="start">free 15:00–16:50</text>
+<rect x="50" y="412" width="138" height="34" rx="0" fill="#fbfdfc" stroke="#c9d4d0" stroke-width="1"/>
+<text x="86" y="432" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="7.6" font-weight="650" fill="#024638" text-anchor="start">Find</text>
+<text x="150" y="432" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="7.6" font-weight="400" fill="#5c6b67" text-anchor="start">Me</text>
+<rect x="214" y="164" width="162" height="54" rx="7" fill="#fff" stroke="#c9d4d0" stroke-width="1.1"/>
+<text x="224" y="185" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="11.2" font-weight="600" fill="#111" text-anchor="start">Views</text>
+<text x="224" y="201" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.0" font-weight="400" fill="#5c6b67" text-anchor="start">Find · Room · Me</text>
+<rect x="214" y="230" width="162" height="54" rx="7" fill="#fff" stroke="#c9d4d0" stroke-width="1.1"/>
+<text x="224" y="251" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="11.2" font-weight="600" fill="#111" text-anchor="start">One API module</text>
+<text x="224" y="267" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.0" font-weight="400" fill="#5c6b67" text-anchor="start">axios, token in a header</text>
+<rect x="214" y="296" width="162" height="54" rx="7" fill="#fff" stroke="#c9d4d0" stroke-width="1.1"/>
+<text x="224" y="317" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="11.2" font-weight="600" fill="#111" text-anchor="start">i18n</text>
+<text x="224" y="333" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.0" font-weight="400" fill="#5c6b67" text-anchor="start">English · 简体 · 繁體</text>
+<text x="44" y="470" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.4" font-weight="400" fill="#5c6b67" text-anchor="start">390 × 844, in a phone browser</text>
+<text x="44" y="486" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.4" font-weight="400" fill="#5c6b67" text-anchor="start">Same origin, so no CORS</text>
+<text x="44" y="502" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.4" font-weight="400" fill="#5c6b67" text-anchor="start">No install, no second backend</text>
+<circle cx="60" cy="528" r="11" fill="#b49764"/>
+<text x="60" y="532.2" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="12" font-weight="700" fill="#fff" text-anchor="middle">1</text>
+<text x="78" y="532" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.2" font-weight="600" fill="#024638" text-anchor="start">the phone opens the app on 5174</text>
+<rect x="452" y="84" width="392" height="472" rx="14" fill="#fff" stroke="#024638" stroke-width="1.6"/>
+<text x="472" y="110" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="14.5" font-weight="700" fill="#024638" text-anchor="start">Spring Boot API</text>
+<text x="472" y="127" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="10" font-weight="400" fill="#5c6b67" text-anchor="start">localhost:8080 · unchanged by this work</text>
+<rect x="472" y="152" width="352" height="60" rx="7" fill="#f7faf9" stroke="#c9d4d0" stroke-width="1.1"/>
+<text x="484" y="175" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="11.8" font-weight="600" fill="#111" text-anchor="start">Auth</text>
+<text x="484" y="192" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.5" font-weight="400" fill="#5c6b67" text-anchor="start">same token, same roles</text>
+<rect x="472" y="226" width="352" height="60" rx="7" fill="#f7faf9" stroke="#c9d4d0" stroke-width="1.1"/>
+<text x="484" y="249" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="11.8" font-weight="600" fill="#111" text-anchor="start">Availability</text>
+<text x="484" y="266" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.5" font-weight="400" fill="#5c6b67" text-anchor="start">timetable minus occupancy</text>
+<rect x="472" y="300" width="352" height="60" rx="7" fill="#f7faf9" stroke="#c9d4d0" stroke-width="1.1"/>
+<text x="484" y="323" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="11.8" font-weight="600" fill="#111" text-anchor="start">Reviews</text>
+<text x="484" y="340" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.5" font-weight="400" fill="#5c6b67" text-anchor="start">text, ratings, photos</text>
+<text x="472" y="404" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.6" font-weight="400" fill="#5c6b67" text-anchor="start">The phone app calls the same endpoints</text>
+<text x="472" y="421" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.6" font-weight="400" fill="#5c6b67" text-anchor="start">with the same token. Nothing was forked.</text>
+<circle cx="488" cy="470" r="11" fill="#b49764"/>
+<text x="488" y="474.2" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="12" font-weight="700" fill="#fff" text-anchor="middle">3</text>
+<text x="506" y="474" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.2" font-weight="600" fill="#024638" text-anchor="start">reads the request, computes free blocks</text>
+<circle cx="488" cy="500" r="11" fill="#b49764"/>
+<text x="488" y="504.2" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="12" font-weight="700" fill="#fff" text-anchor="middle">5</text>
+<text x="506" y="504" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.2" font-weight="600" fill="#024638" text-anchor="start">answers with rooms and their free windows</text>
+<rect x="904" y="150" width="252" height="150" rx="12" fill="#fffaf0" stroke="#8a6d2f" stroke-width="1.4"/>
+<text x="920" y="176" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="13.5" font-weight="700" fill="#8a6d2f" text-anchor="start">PostgreSQL</text>
+<text x="920" y="195" font-family='"SF Mono", Menlo, monospace' font-size="10" font-weight="400" fill="#5c6b67" text-anchor="start">localhost:5433</text>
+<text x="920" y="213" font-family='"SF Mono", Menlo, monospace' font-size="10" font-weight="400" fill="#5c6b67" text-anchor="start">emptyclassroom</text>
+<text x="920" y="240" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.3" font-weight="400" fill="#5c6b67" text-anchor="start">rooms · class_slots</text>
+<text x="920" y="257" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.3" font-weight="400" fill="#5c6b67" text-anchor="start">room_reviews · review_photos</text>
+<text x="920" y="274" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.3" font-weight="400" fill="#5c6b67" text-anchor="start">app_user · audit_log</text>
+<circle cx="920" cy="322" r="11" fill="#b49764"/>
+<text x="920" y="326.2" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="12" font-weight="700" fill="#fff" text-anchor="middle">4</text>
+<text x="920" y="348" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.2" font-weight="600" fill="#8a6d2f" text-anchor="start">SQL: the timetable and</text>
+<text x="920" y="364" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.2" font-weight="600" fill="#8a6d2f" text-anchor="start">the published changes</text>
+<line x1="396" y1="300" x2="448" y2="300" stroke="#024638" stroke-width="2.2" marker-end="url(#ah)"/>
+<circle cx="422" cy="282" r="11" fill="#b49764"/>
+<text x="422" y="286.2" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="12" font-weight="700" fill="#fff" text-anchor="middle">2</text>
+<text x="422" y="330" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.2" font-weight="600" fill="#8a6d2f" text-anchor="middle">proxy</text>
+<text x="422" y="344" font-family='"SF Mono", Menlo, monospace' font-size="9.0" font-weight="400" fill="#5c6b67" text-anchor="middle">/api</text>
+<line x1="848" y1="210" x2="900" y2="210" stroke="#8a6d2f" stroke-width="2.0" marker-end="url(#ahg)"/>
+<line x1="900" y1="240" x2="848" y2="240" stroke="#8a6d2f" stroke-width="1.6" marker-end="url(#ahg)"/>
+<text x="874" y="196" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.2" font-weight="400" fill="#5c6b67" text-anchor="middle">SQL</text>
+<path d="M648 556 V586 H196 V560" fill="none" stroke="#024638" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#ah)"/>
+<text x="660" y="580" font-family='-apple-system, "Helvetica Neue", Arial, sans-serif' font-size="9.4" font-weight="600" fill="#024638" text-anchor="start">JSON back: rooms, free windows, reviews, photos</text>
+</svg>
