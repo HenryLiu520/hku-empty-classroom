@@ -54,10 +54,22 @@
         <span class="who">{{ rv.author }}</span>
         <div class="body">{{ rv.body }}</div>
         <div v-if="rv.photos && rv.photos.length" class="photos">
-          <img v-for="p in rv.photos" :key="p.id" :src="p.url" alt="" loading="lazy" />
+          <img
+            v-for="p in rv.photos"
+            :key="p.id"
+            :src="p.url"
+            alt=""
+            loading="lazy"
+            @click="zoom = p.url"
+          />
         </div>
       </div>
       <p v-if="reviews && !reviews.count" class="hint">{{ t('room.noReviews') }}</p>
+    </div>
+
+    <!-- 点开看大图：手机上 104px 的缩略图看不清字体/插座位置 -->
+    <div v-if="zoom" class="lightbox" @click="zoom = ''">
+      <img :src="zoom" alt="" />
     </div>
   </div>
 </template>
@@ -75,6 +87,7 @@ const date = route.query.date || new Date().toISOString().slice(0, 10)
 const room = ref(null)
 const segments = ref([])
 const reviews = ref(null)
+const zoom = ref('')
 
 onMounted(async () => {
   try {
