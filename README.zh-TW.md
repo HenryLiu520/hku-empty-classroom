@@ -111,6 +111,8 @@
 
 ## 架構
 
+資料庫結構，含從**跑著的資料庫**生成的 ER 圖：**[docs/ERD.zh-TW.md](docs/ERD.zh-TW.md)**。
+
 ![架構：一個 Vue 應用三種帳號角色、一個服務、一個資料庫，學校課表是唯讀輸入](docs/images/architecture.png)
 
 三個部分，**它們之間的分工就是設計本身**：
