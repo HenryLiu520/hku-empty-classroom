@@ -111,7 +111,7 @@
 
 数据库结构，含从**跑着的数据库**生成的 ER 图：**[docs/ERD.zh-CN.md](docs/ERD.zh-CN.md)**。
 
-![架构：一个 Vue 应用三种账户角色、一个服务、一个数据库，学校课表是只读输入](docs/images/architecture.png)
+![架构：一个 Vue 应用三种账户角色、一个服务、一个数据库，学校课表是只读输入](docs/diagrams/architecture.png)
 
 三个部分，**它们之间的分工就是设计本身**：
 

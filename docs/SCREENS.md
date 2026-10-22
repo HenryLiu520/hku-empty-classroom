@@ -57,4 +57,4 @@ place (a write goes straight to the database and bumps `revision`).
 | | |
 |---|---|
 | **Two systems, one contract** — how the app calls the feed | [two-systems-architecture-en.png](../mock-school-api/design/figures/two-systems-architecture-en.png) |
-| **Overall architecture** | [architecture.png](images/architecture.png) |
+| **Overall architecture** | [architecture.png](diagrams/architecture.png) |

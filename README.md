@@ -119,7 +119,7 @@ Where the busy blocks come from is the part that matters most:
 
 Database schema, with ER diagrams generated from the live database: **[docs/ERD.md](docs/ERD.md)**.
 
-![Architecture: one Vue app with three account roles, one service, one database, and the University's timetable as a read-only input](docs/images/architecture.png)
+![Architecture: one Vue app with three account roles, one service, one database, and the University's timetable as a read-only input](docs/diagrams/architecture.png)
 
 Three parts, and the split between them is the design:
 

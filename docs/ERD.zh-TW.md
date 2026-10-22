@@ -6,7 +6,7 @@
 
 ## 1. 專案庫 —— `emptyclassroom`
 
-![ER 圖](erd/er-main.png)
+![ER 圖](diagrams/er-main.png)
 
 七張表。`flyway_schema_history` 故意沒畫：那是 Flyway 自己的記帳，不屬於模型。
 
@@ -34,7 +34,7 @@
 
 ## 2. 模擬學校系統 —— `mockschool`
 
-![ER 圖（模擬系統）](erd/er-mock.png)
+![ER 圖（模擬系統）](diagrams/er-mock.png)
 
 三張表，在**另一個 PostgreSQL 庫**裡 —— 兩個系統不共享儲存，只共享 HTTP 契約。
 

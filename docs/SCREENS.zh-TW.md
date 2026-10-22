@@ -50,4 +50,4 @@ iPhone 13 視窗（390 × 844），**同一個後端**。
 | | |
 |---|---|
 | **兩個系統，一份契約** —— 應用程式怎麼呼叫這份資料 | [two-systems-architecture-en.png](../mock-school-api/design/figures/two-systems-architecture-en.png) |
-| **整體架構** | [architecture.png](images/architecture.png) |
+| **整體架構** | [architecture.png](diagrams/architecture.png) |

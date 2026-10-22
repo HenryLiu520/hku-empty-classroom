@@ -8,7 +8,7 @@ what the running system actually has.
 
 ## 1. The project database — `emptyclassroom`
 
-![ER diagram](erd/er-main.png)
+![ER diagram](diagrams/er-main.png)
 
 Seven tables. `flyway_schema_history` is left out on purpose: it is Flyway's own bookkeeping, not
 part of the model.
@@ -40,7 +40,7 @@ the schema has no reservation table — nothing in this system can *own* a room.
 
 ## 2. The simulated school feed — `mockschool`
 
-![ER diagram, simulated feed](erd/er-mock.png)
+![ER diagram, simulated feed](diagrams/er-mock.png)
 
 Three tables, in a **separate PostgreSQL database** so the two systems share no storage — only the
 HTTP contract.

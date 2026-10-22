@@ -6,7 +6,7 @@
 
 ## 1. 项目库 —— `emptyclassroom`
 
-![ER 图](erd/er-main.png)
+![ER 图](diagrams/er-main.png)
 
 七张表。`flyway_schema_history` 故意没画：那是 Flyway 自己的记账，不属于模型。
 
@@ -34,7 +34,7 @@
 
 ## 2. 模拟学校系统 —— `mockschool`
 
-![ER 图（模拟系统）](erd/er-mock.png)
+![ER 图（模拟系统）](diagrams/er-mock.png)
 
 三张表，在**另一个 PostgreSQL 库**里 —— 两个系统不共享存储，只共享 HTTP 契约。
 

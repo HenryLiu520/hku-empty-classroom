@@ -50,4 +50,4 @@ iPhone 13 视口（390 × 844），**同一个后端**。
 | | |
 |---|---|
 | **两个系统，一份契约** —— 应用怎么调这份数据 | [two-systems-architecture-en.png](../mock-school-api/design/figures/two-systems-architecture-en.png) |
-| **整体架构** | [architecture.png](images/architecture.png) |
+| **整体架构** | [architecture.png](diagrams/architecture.png) |
