@@ -126,6 +126,8 @@
 
 **环境要求：** Java 21、Maven、Node 18+、PostgreSQL 17（macOS 上 `brew install maven openjdk@21 postgresql@17 node`）。
 
+逐步部署、端口、账号、常见问题：**[docs/DEPLOY.zh-CN.md](docs/DEPLOY.zh-CN.md)**。
+
 ```bash
 git clone https://github.com/HenryLiu520/hku-empty-classroom.git
 cd hku-empty-classroom

@@ -133,6 +133,8 @@ The University's timetable is an **input, not a part we build**. Our service cal
 
 **Requirements:** Java 21, Maven, Node 18+, PostgreSQL 17 (`brew install maven openjdk@21 postgresql@17 node` on macOS).
 
+Step-by-step deployment, ports, accounts and troubleshooting: **[docs/DEPLOY.md](docs/DEPLOY.md)**.
+
 ```bash
 git clone https://github.com/HenryLiu520/hku-empty-classroom.git
 cd hku-empty-classroom

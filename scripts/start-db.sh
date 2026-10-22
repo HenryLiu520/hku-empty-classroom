@@ -3,7 +3,16 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-PGBIN="/opt/homebrew/opt/postgresql@17/bin"
+# PostgreSQL 17 的位置：Homebrew（macOS）→ PATH（Linux / 其它）→ 明确报错
+if [ -x "/opt/homebrew/opt/postgresql@17/bin/initdb" ]; then
+  PGBIN="/opt/homebrew/opt/postgresql@17/bin"
+elif command -v initdb >/dev/null 2>&1; then
+  PGBIN="$(dirname "$(command -v initdb)")"
+else
+  echo "[db] PostgreSQL 17 not found. Install it, or set PGBIN=/path/to/pg/bin" >&2
+  exit 1
+fi
+
 DATA="$ROOT/db/pgdata"
 LOG="$ROOT/db/pg.log"
 PORT=5433

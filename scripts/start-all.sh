@@ -33,6 +33,10 @@ fi
 echo
 echo "  Student view : http://localhost:5173/login   (user1 / user123, read only)"
 echo "  Admin port   : http://localhost:5173/manage  (admin1 / admin123, add or release room use time)"
-echo "  API          : http://localhost:8080/api/availability?date=$(date +%F)\&building=Central%20Podium\&from=14:00\&to=15:50"
+API_URL="http://localhost:8080/api/availability?date=$(date +%F)&building=Central%20Podium&from=14:00&to=15:50"
+echo "  API          : $API_URL"
+echo
+echo "  Mobile view  : http://localhost:5174/login   (cd mobile && npm install && npm run dev)"
+echo "  Mock school  : http://127.0.0.1:9000/        (scripts/mock-school.sh)"
 echo
 echo "  Stop everything: scripts/stop-all.sh"
