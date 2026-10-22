@@ -119,11 +119,11 @@ Where the busy blocks come from is the part that matters most:
 
 Database schema, with ER diagrams generated from the live database: **[docs/ERD.md](docs/ERD.md)**.
 
-![Architecture: one Vue app with three account roles, one service, one database, and the University's timetable as a read-only input](docs/diagrams/architecture.png)
+![Architecture: two Vue front ends, one Spring Boot service, one database, and the University's timetable as a read-only input](docs/diagrams/architecture.png)
 
 Three parts, and the split between them is the design:
 
-1. **One Vue 3 single-page app, three account roles** (`user` < `admin` < `superadmin`). A student page has no control over occupancy anywhere; an administrator adds *change room use time* and facility editing, and a super administrator adds account management. It is the same application in every case, and what a role may do is decided by the server rather than by hiding buttons.
+1. **Two Vue 3 front ends, one per device.** The desktop client (port 5173) carries all three account roles (`user` < `admin` < `superadmin`): a student page has no control over occupancy anywhere, an administrator adds *change room use time* and facility editing, and a super administrator adds account management. The phone client (port 5174) is the student view: find a free room, a room's timetable, reviews and photos. Both call the same API with the same token, and **what a role may do is decided by the server rather than by hiding buttons** — there is no second copy of the rules to keep in step.
 2. **One Spring Boot service** that computes availability, applies the rules above, and is the only part of the system that writes anything.
 3. **One PostgreSQL database** holding the timetable, the posted changes, the audit log and the accounts.
 
