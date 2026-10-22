@@ -6,6 +6,11 @@ server:
 spring:
   application:
     name: empty-classroom
+  servlet:
+    multipart:
+      # 单张照片上限 3 MB（与 ReviewPhotoService.MAX_BYTES 一致），整请求留一点余量
+      max-file-size: 3MB
+      max-request-size: 4MB
   datasource:
     url: jdbc:postgresql://localhost:5433/emptyclassroom
     username: ${USER:ran}
@@ -25,6 +30,8 @@ spring:
     baseline-on-migrate: true
 
 app:
+  # 评价照片存放目录（文件在磁盘、数据库只存指针）
+  upload-dir: ./uploads/review-photos
   # 换场缓冲：两个相邻占用段之间至少留这么多分钟，才算“可用”
   buffer-minutes: 10
   # 教室开放时段（超出这个范围不展示为空闲）

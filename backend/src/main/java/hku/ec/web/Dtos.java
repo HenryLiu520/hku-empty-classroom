@@ -78,11 +78,15 @@ public final class Dtos {
             String actor, String detail, String createdAt
     ) { }
 
-    /** 一条房间评价。mine = 是不是当前登录用户写的（决定 UI 上给不给删） */
+    /** 一条房间评价。mine = 是不是当前登录用户写的（决定 UI 上给不给删）；photos = 这条评价带的照片 */
     public record ReviewView(
             Long id, String roomCode, int rating, String body, String author,
-            String createdAt, String updatedAt, boolean mine
+            String createdAt, String updatedAt, boolean mine,
+            List<PhotoView> photos
     ) { }
+
+    /** 一张评价照片：id + 取图的 URL + 字节数 */
+    public record PhotoView(Long id, String url, int byteSize) { }
 
     /** 某间房的评价列表：平均分 + 条数 + 排序后的条目 */
     public record ReviewList(

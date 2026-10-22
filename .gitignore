@@ -8,6 +8,9 @@ frontend/dist/
 logs/
 *.log
 
+# 用户上传的评价照片（文件在磁盘，库里只存指针；不随仓库分发）
+uploads/
+
 # 本机/编辑器
 .DS_Store
 .idea/

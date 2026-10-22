@@ -26,6 +26,7 @@ import java.util.Map;
 /**
  * 房间评价：一个人对一间房一条，可改可删。
  * 评价对象是**房间**，不是人；数据结构里也没有"评价某位老师"的位置。
+ * 照片由 ReviewPhotoService 管理，这里只负责把它们一起查出来附在返回结果上（一次查询，避免 N+1）。
  */
 @Service
 public class ReviewService {
@@ -36,11 +37,14 @@ public class ReviewService {
     private final RoomReviewRepository reviews;
     private final RoomRepository rooms;
     private final AuditRepository audit;
+    private final ReviewPhotoService photoService;
 
-    public ReviewService(RoomReviewRepository reviews, RoomRepository rooms, AuditRepository audit) {
+    public ReviewService(RoomReviewRepository reviews, RoomRepository rooms, AuditRepository audit,
+                         ReviewPhotoService photoService) {
         this.reviews = reviews;
         this.rooms = rooms;
         this.audit = audit;
+        this.photoService = photoService;
     }
 
     // ---------------------------------------------------------------- 写
@@ -63,12 +67,13 @@ public class ReviewService {
 
         audit.save(new AuditEntry(isNew ? "CREATE_REVIEW" : "UPDATE_REVIEW", "room_reviews", saved.getId(),
                 actor, "%s %d/5 %s".formatted(room.getCode(), rating, isNew ? "(new)" : "(edited)")));
-        return view(saved, room.getCode(), actor);
+        return view(saved, room.getCode(), actor, photosOf(List.of(saved.getId())).get(saved.getId()));
     }
 
     /**
      * 删评价。
      * 权限分离：任何人都只能删**自己的**；只有超级管理员能删别人的。
+     * 照片行与磁盘文件一并清掉（行有外键级联，文件没有级联）。
      */
     @Transactional
     public void delete(Long id, String actor, boolean canDeleteAny) {
@@ -78,9 +83,11 @@ public class ReviewService {
             throw new IllegalArgumentException("You can only delete your own review");
         }
         String owner = r.getCreatedBy();
+        int photos = photoService.byReview(List.of(id)).getOrDefault(id, List.of()).size();
+        photoService.deleteAllForReview(id);
         reviews.delete(r);
         audit.save(new AuditEntry("DELETE_REVIEW", "room_reviews", id, actor,
-                "deleted review by %s%s".formatted(owner,
+                "deleted review by %s with %d photo(s)%s".formatted(owner, photos,
                         canDeleteAny && !owner.equals(actor) ? " (as superadmin)" : "")));
     }
 
@@ -98,8 +105,12 @@ public class ReviewService {
                     .thenComparing(RoomReview::getCreatedAt, Comparator.reverseOrder()));
         }
 
+        Map<Long, List<Dtos.PhotoView>> byReview =
+                photosOf(all.stream().map(RoomReview::getId).toList());
         double avg = all.stream().mapToInt(RoomReview::getRating).average().orElse(0.0);
-        List<Dtos.ReviewView> items = sorted.stream().map(r -> view(r, room.getCode(), viewer)).toList();
+        List<Dtos.ReviewView> items = sorted.stream()
+                .map(r -> view(r, room.getCode(), viewer, byReview.get(r.getId())))
+                .toList();
         return new Dtos.ReviewList(room.getCode(), Math.round(avg * 10.0) / 10.0, all.size(),
                 "rating".equalsIgnoreCase(sort) ? "rating" : "time", items);
     }
@@ -127,6 +138,11 @@ public class ReviewService {
         return rooms.findByCode(code).orElseThrow(() -> new IllegalArgumentException("unknown room: " + code));
     }
 
+    /** 一次查完这批评价的照片，避免每条评价各查一次 */
+    private Map<Long, List<Dtos.PhotoView>> photosOf(List<Long> reviewIds) {
+        return photoService.byReview(reviewIds);
+    }
+
     private void validate(Integer rating, String body) {
         if (rating == null || rating < 1 || rating > 5) {
             throw new IllegalArgumentException("Please give a rating from 1 to 5 stars");
@@ -140,9 +156,10 @@ public class ReviewService {
         }
     }
 
-    private Dtos.ReviewView view(RoomReview r, String roomCode, String viewer) {
+    private Dtos.ReviewView view(RoomReview r, String roomCode, String viewer, List<Dtos.PhotoView> photos) {
         return new Dtos.ReviewView(r.getId(), roomCode, r.getRating(), r.getBody(), r.getCreatedBy(),
                 r.getCreatedAt().format(TS), r.getUpdatedAt().format(TS),
-                viewer != null && viewer.equals(r.getCreatedBy()));
+                viewer != null && viewer.equals(r.getCreatedBy()),
+                photos == null ? List.of() : photos);
     }
 }

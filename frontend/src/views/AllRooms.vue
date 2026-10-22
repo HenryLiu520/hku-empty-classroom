@@ -127,6 +127,22 @@
             <el-input v-model="myBody" type="textarea" :rows="3" maxlength="600" show-word-limit
                       :placeholder="t('rooms.reviewPlaceholder')" />
           </el-form-item>
+          <el-form-item :label="t('rooms.photos')">
+            <div class="photo-pick">
+              <input ref="photoInput" type="file" accept="image/jpeg,image/png,image/webp" multiple hidden
+                     @change="onPickPhotos" />
+              <el-button size="small"
+                         :disabled="(reviews?.items.find((i) => i.mine)?.photos?.length || 0) + pendingPhotos.length >= maxPhotos"
+                         @click="photoInput.click()">+ {{ t('rooms.addPhotos') }}</el-button>
+              <span class="hint">{{ t('rooms.photoLimit', { n: maxPhotos }) }}</span>
+            </div>
+            <div v-if="pendingPhotos.length" class="thumb-row">
+              <div v-for="(p, i) in pendingPhotos" :key="i" class="thumb">
+                <img :src="p.url" :alt="p.name" />
+                <button type="button" class="thumb-x" @click="dropPending(i)">&times;</button>
+              </div>
+            </div>
+          </el-form-item>
           <el-form-item>
             <el-button type="primary" :loading="savingReview" @click="submitReview">
               {{ myExistingId ? t('rooms.updateReview') : t('rooms.postReview') }}
@@ -159,6 +175,14 @@
               </el-button>
             </div>
             <div class="rev-body">{{ it.body }}</div>
+            <div v-if="it.photos && it.photos.length" class="rev-photos">
+              <div v-for="p in it.photos" :key="p.id" class="rev-photo-wrap">
+                <el-image :src="p.url" :preview-src-list="it.photos.map((x) => x.url)" fit="cover"
+                          class="rev-photo" preview-teleported />
+                <button v-if="it.mine || auth.isSuper" type="button" class="photo-x"
+                        :title="t('common.delete')" @click="removePhoto(p.id)">&#10005;</button>
+              </div>
+            </div>
           </div>
         </div>
         <el-empty v-else :image-size="60" :description="t('rooms.noReviews')" />
@@ -206,6 +230,10 @@ const myRating = ref(0)
 const myBody = ref('')
 const myExistingId = ref(null)
 const savingReview = ref(false)
+// 评价照片：待上传的图片（还没挂到评价上）、每张的上限、最多几张
+const photoInput = ref(null)
+const pendingPhotos = ref([])
+const maxPhotos = 3
 
 /** 按房号字母序；过滤只作用于列表，不改变选中项 */
 const filteredRooms = computed(() => {
@@ -307,7 +335,15 @@ async function submitReview() {
   if (!myBody.value.trim()) { ElMessage.warning(t('rooms.needBody')); return }
   savingReview.value = true
   try {
-    await api.post(`/rooms/${selected.value.code}/reviews`, { rating: myRating.value, body: myBody.value })
+    const { data: saved } = await api.post(`/rooms/${selected.value.code}/reviews`,
+      { rating: myRating.value, body: myBody.value })
+    // 评价先落地，拿到 id 之后再把挑好的照片挂上去（照片是评价的从属记录）
+    for (const p of pendingPhotos.value) {
+      const form = new FormData()
+      form.append('file', p.file)
+      await api.post(`/reviews/${saved.id}/photos`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
+    }
+    clearPending()
     ElMessage.success(t('rooms.reviewSaved'))
     await refreshAll()
   } catch (e) {
@@ -336,6 +372,50 @@ async function removeReview(id, others) {
     await refreshAll()
   } catch (e) {
     ElMessage.error(apiError(e, 'rooms.reviewDeleteFailed'))
+  }
+}
+
+// ---------------------------------------------------------------- 评价照片
+// 前端只做三件事：挑图、按上限拦住、预览；真正的校验（类型/大小/张数/权限）在后端
+function onPickPhotos(e) {
+  const files = Array.from(e.target.files || [])
+  e.target.value = ''                       // 允许再次选同一张图
+  const existing = reviews.value?.items.find((i) => i.mine)?.photos?.length || 0
+  for (const f of files) {
+    if (existing + pendingPhotos.value.length >= maxPhotos) {
+      ElMessage.warning(t('rooms.photoLimit', { n: maxPhotos }))
+      break
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) {
+      ElMessage.warning(t('rooms.photoBadType'))
+      continue
+    }
+    if (f.size > 3 * 1024 * 1024) {
+      ElMessage.warning(t('rooms.photoTooBig'))
+      continue
+    }
+    pendingPhotos.value.push({ file: f, name: f.name, url: URL.createObjectURL(f) })
+  }
+}
+
+function dropPending(i) {
+  const p = pendingPhotos.value[i]
+  if (p) URL.revokeObjectURL(p.url)
+  pendingPhotos.value.splice(i, 1)
+}
+
+function clearPending() {
+  for (const p of pendingPhotos.value) URL.revokeObjectURL(p.url)
+  pendingPhotos.value = []
+}
+
+async function removePhoto(id) {
+  try {
+    await api.delete(`/review-photos/${id}`)
+    ElMessage.success(t('rooms.photoDeleted'))
+    await refreshAll()
+  } catch (e) {
+    ElMessage.error(apiError(e, 'rooms.photoFailed'))
   }
 }
 
@@ -375,6 +455,18 @@ watch(() => t('app.name'), () => {
 .rev-top { display: flex; align-items: center; gap: 10px; }
 .rev-meta { color: #7d8c88; font-size: 12px; }
 .rev-body { margin-top: 4px; color: #1f2d2a; font-size: 13px; line-height: 1.6; }
+.rev-photos { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.rev-photo-wrap { position: relative; }
+.rev-photo { width: 96px; height: 72px; border-radius: 6px; overflow: hidden; background: #eef2f0; }
+.photo-x { position: absolute; top: -6px; right: -6px; width: 18px; height: 18px; border-radius: 50%;
+  border: none; background: #b23b3b; color: #fff; font-size: 10px; line-height: 1; cursor: pointer; }
+.photo-pick { display: flex; align-items: center; gap: 8px; }
+.thumb-row { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.thumb { position: relative; width: 84px; height: 64px; border-radius: 6px; overflow: hidden;
+  border: 1px solid #dfe6e3; }
+.thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumb-x { position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border: none;
+  border-radius: 50%; background: rgba(0, 0, 0, .55); color: #fff; font-size: 10px; line-height: 1; cursor: pointer; }
 .tl-grid { display: grid; gap: 2px; }
 .cell { height: 30px; border-radius: 3px; display: flex; align-items: center; justify-content: center;
   color: #fff; font-size: 10px; overflow: hidden; white-space: nowrap; min-width: 0; }
