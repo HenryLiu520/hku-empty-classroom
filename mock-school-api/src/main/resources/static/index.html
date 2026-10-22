@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mock school API — control panel</title>
+<style>
+  :root { --green: #024638; --gold: #b49764; --line: #dfe6e3; --muted: #6b7c77; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 18px 20px 40px; font: 13px/1.5 -apple-system, "Helvetica Neue", Arial, sans-serif;
+         color: #1f2d2a; background: #f7f9f8; }
+  h1 { font-size: 17px; margin: 0 0 2px; display: flex; align-items: center; gap: 8px; }
+  h2 { font-size: 13px; margin: 0 0 10px; color: var(--green); letter-spacing: .02em; }
+  .tag { font-size: 10.5px; font-weight: 500; color: #fff; background: var(--gold); border-radius: 10px; padding: 1px 8px; }
+  .sub { color: var(--muted); font-size: 11.5px; margin: 0 0 14px; }
+  header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
+  .key { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--muted); }
+  .key input { width: 170px; }
+  input, select, button { font: inherit; border: 1px solid var(--line); border-radius: 5px; padding: 4px 7px; background: #fff; }
+  input:focus, select:focus { outline: 2px solid #cfe0da; }
+  button { cursor: pointer; background: #fff; }
+  button:hover { border-color: var(--green); color: var(--green); }
+  button.primary { background: var(--green); color: #fff; border-color: var(--green); }
+  button.primary:hover { background: #03604c; color: #fff; }
+  button.danger { color: #a3312c; }
+  button.danger:hover { border-color: #a3312c; color: #a3312c; }
+  .cards { display: grid; grid-template-columns: 1.15fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+  dl { display: grid; grid-template-columns: 132px 1fr; gap: 3px 10px; margin: 0; font-size: 12px; }
+  dt { color: var(--muted); }
+  dd { margin: 0; font-variant-numeric: tabular-nums; }
+  .switches { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .state { font-size: 11.5px; color: var(--muted); }
+  .grid { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .grid th, .grid td { border: 1px solid var(--line); padding: 0; height: 26px; text-align: center; }
+  .grid th { background: #f2f6f4; color: var(--muted); font-weight: 500; height: 20px; }
+  .grid th.room, .grid td.room { text-align: left; padding: 0 6px; white-space: nowrap; font-size: 11px; background: #fbfcfc; }
+  .grid td.busy { background: #9fb0aa; color: #fff; font-size: 9.5px; overflow: hidden; }
+  .grid td.free { background: #eef5f2; }
+  .grid td.out { background: #f6f7f7; }
+  .grid td.hourline { border-left: 1px solid var(--line); }
+  .scroll { overflow-x: auto; }
+  table.list { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.list th, table.list td { border-bottom: 1px solid var(--line); padding: 5px 4px; text-align: left; }
+  table.list th { color: var(--muted); font-weight: 500; font-size: 11px; }
+  table.list input[type=text], table.list input[type=number] { width: 100%; padding: 2px 4px; }
+  .row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .row label { color: var(--muted); font-size: 11.5px; }
+  .muted { color: var(--muted); }
+  #toast { position: fixed; right: 18px; bottom: 18px; display: flex; flex-direction: column; gap: 6px; }
+  .msg { background: #1f2d2a; color: #fff; border-radius: 6px; padding: 7px 11px; font-size: 12px; max-width: 420px; }
+  .msg.err { background: #8f2b26; }
+  .pill { display: inline-block; font-size: 10.5px; padding: 0 6px; border-radius: 8px; background: #eef5f2; color: var(--green); }
+  .pill.warn { background: #fbf1e2; color: #8a5a12; }
+  @media (max-width: 900px) { .cards { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>模拟学校课表系统 <span class="tag">simulated feed</span></h1>
+    <p class="sub">测试替身 · 只在本机 · 数据在 PostgreSQL <code>mockschool</code> 库里 · 改动会立刻反映到 <code>/v1</code> 接口</p>
+  </div>
+  <div class="key">
+    <label for="key">X-Api-Key</label>
+    <input id="key" value="hku-demo-key" />
+    <button id="saveKey">保存</button>
+    <span id="net" class="pill">—</span>
+  </div>
+</header>
+
+<div class="cards">
+  <section class="card">
+    <h2>数据状态（/v1/meta）</h2>
+    <dl id="meta"><dt>读取中…</dt></dl>
+  </section>
+  <section class="card">
+    <h2>测试开关（/v1/_control）</h2>
+    <div class="switches">
+      <button data-sw="stale60">数据变旧 60 分钟</button>
+      <button data-sw="stale180">变旧 3 小时</button>
+      <button data-sw="slow800">响应慢 800 ms</button>
+      <button data-sw="slow3000">慢 3 秒</button>
+      <button data-sw="down" class="danger">让上游挂掉</button>
+      <button data-sw="reset" class="primary">全部复位</button>
+    </div>
+    <p class="state" id="swstate">—</p>
+    <p class="state">开关生效后，右侧 <code>/v1</code> 请求会立刻体现出来；「数据状态」里的 lastUpdated 会跟着变。</p>
+  </section>
+</div>
+
+<section class="card" style="margin-bottom:14px">
+  <h2>课表（可视化验证）</h2>
+  <div class="row">
+    <label for="date">日期</label>
+    <input type="date" id="date" />
+    <span class="muted">或</span>
+    <span id="weekdays"></span>
+    <button id="reload" class="primary">刷新</button>
+    <span class="muted" id="dayinfo"></span>
+  </div>
+  <div class="scroll"><table class="grid" id="grid"></table></div>
+  <p class="state" style="margin:8px 0 0">深色格 = 有课（格内是课号）；浅绿 = 空闲；灰 = 开放时段之外。窄屏请横向滚动。</p>
+</section>
+
+<section class="card" style="margin-bottom:14px">
+  <h2>教室（可直接改，保存即写入数据库）</h2>
+  <table class="list" id="rooms"><thead>
+    <tr><th style="width:96px">code</th><th>building</th><th style="width:64px">floor</th><th style="width:78px">capacity</th>
+        <th style="width:70px">sockets</th><th>seatType</th><th style="width:104px"></th></tr>
+  </thead><tbody></tbody></table>
+  <div class="row" style="margin-top:10px">
+    <label>新增教室</label>
+    <input id="newCode" placeholder="CPD-5.01" style="width:110px" />
+    <input id="newBuilding" placeholder="Central Podium" style="width:150px" />
+    <input id="newFloor" placeholder="5F" style="width:60px" />
+    <input id="newCapacity" type="number" placeholder="35" style="width:70px" />
+    <select id="newSockets"><option value="">未知</option><option value="true">有插座</option><option value="false">没插座</option></select>
+    <input id="newSeat" placeholder="Individual desks" style="width:150px" />
+    <button id="addRoom" class="primary">新增</button>
+  </div>
+</section>
+
+<section class="card">
+  <h2>课时（新增 / 删除）</h2>
+  <div class="row">
+    <label>教室</label><select id="slotRoom"></select>
+    <label>星期</label><select id="slotDay">
+      <option value="1">周一</option><option value="2">周二</option><option value="3">周三</option>
+      <option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="7">周日</option>
+    </select>
+    <label>起</label><input id="slotStart" value="09:00" style="width:74px" />
+    <label>止</label><input id="slotEnd" value="10:50" style="width:74px" />
+    <label>课号</label><input id="slotCourse" placeholder="COMP1110" style="width:120px" />
+    <button id="addSlot" class="primary">新增课时</button>
+  </div>
+  <p class="state" style="margin:0 0 8px">同房同日时间重叠会被服务端拒绝（400），错误原样显示在右下角。</p>
+  <div class="scroll" style="max-height:340px;overflow:auto">
+    <table class="list" id="slots"><thead>
+      <tr><th style="width:96px">room</th><th style="width:64px">day</th><th style="width:96px">start–end</th><th>course</th><th style="width:70px"></th></tr>
+    </thead><tbody></tbody></table>
+  </div>
+  <p class="state" style="margin:8px 0 0">只显示上面「教室」下拉里选中的那间房；换一间就刷新。</p>
+</section>
+
+<div id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const el = (tag, props = {}, kids = []) => {
+  const n = document.createElement(tag);
+  Object.assign(n, props);
+  for (const k of kids) n.append(k);
+  return n;
+};
+const toast = (text, isErr) => {
+  const n = el('div', { className: 'msg' + (isErr ? ' err' : ''), textContent: text });
+  $('#toast').append(n);
+  setTimeout(() => n.remove(), 4200);
+};
+
+let API_KEY = localStorage.getItem('mockKey') || 'hku-demo-key';
+$('#key').value = API_KEY;
+$('#saveKey').onclick = () => {
+  API_KEY = $('#key').value.trim();
+  localStorage.setItem('mockKey', API_KEY);
+  toast('API key 已保存');
+  refreshAll();
+};
+
+async function api(path, opts = {}) {
+  const t0 = performance.now();
+  const res = await fetch(path, {
+    ...opts,
+    headers: { 'X-Api-Key': API_KEY, ...(opts.body ? { 'Content-Type': 'application/json' } : {}), ...(opts.headers || {}) },
+  });
+  const ms = Math.round(performance.now() - t0);
+  $('#net').textContent = `${res.status} · ${ms} ms`;
+  $('#net').className = 'pill' + (res.ok ? '' : ' warn');
+  const text = await res.text();
+  const body = text ? JSON.parse(text) : null;
+  if (!res.ok) {
+    const msg = body && body.message ? `${body.error}: ${body.message}` : `HTTP ${res.status}`;
+    throw new Error(msg);
+  }
+  return body;
+}
+
+// ---------------------------------------------------------------- meta
+async function loadMeta() {
+  const dl = $('#meta');
+  try {
+    const m = await api('/v1/meta');
+    const ageMin = Math.round((Date.now() - new Date(m.lastUpdated).getTime()) / 60000);
+    dl.replaceChildren();
+    const rows = [
+      ['provider', m.provider], ['term', m.term],
+      ['generatedAt', m.generatedAt], ['lastUpdated', `${m.lastUpdated}  (${ageMin} 分钟前)`],
+      ['revision', m.revision + (m.staleMinutes ? `  · stale 开关 ${m.staleMinutes} 分钟` : '')],
+      ['rooms / slots', `${m.rooms} / ${m.classSlots}`],
+    ];
+    for (const [k, v] of rows) {
+      dl.append(el('dt', { textContent: k }), el('dd', { textContent: v }));
+    }
+  } catch (e) {
+    dl.replaceChildren(el('dt', { textContent: '读取失败' }), el('dd', { textContent: e.message }));
+  }
+}
+
+// ---------------------------------------------------------------- switches
+document.querySelectorAll('[data-sw]').forEach((btn) => {
+  btn.onclick = async () => {
+    const sw = btn.dataset.sw;
+    try {
+      if (sw === 'down') await api('/v1/_control/down?value=true', { method: 'POST' });
+      else if (sw === 'reset') await api('/v1/_control/reset', { method: 'POST' });
+      else if (sw.startsWith('stale')) await api(`/v1/_control/stale?minutes=${sw.slice(5)}`, { method: 'POST' });
+      else if (sw.startsWith('slow')) await api(`/v1/_control/slow?ms=${sw.slice(4)}`, { method: 'POST' });
+      toast('开关已更新：' + sw);
+    } catch (e) {
+      toast(e.message, true);
+    }
+    loadSwitches();
+    loadMeta();
+  };
+});
+
+async function loadSwitches() {
+  try {
+    const s = await api('/v1/_control/state');
+    $('#swstate').textContent = `当前：staleMinutes=${s.staleMinutes} · slowMs=${s.slowMs} · down=${s.down}`;
+  } catch (e) {
+    $('#swstate').textContent = '开关状态读取失败：' + e.message;
+  }
+}
+
+// ---------------------------------------------------------------- timetable grid
+const HOURS = [];
+for (let h = 8; h < 22; h++) HOURS.push(String(h).padStart(2, '0') + ':00');
+
+function mins(t) { const [h, m] = t.split(':').map(Number); return h * 60 + m; }
+
+async function loadDay() {
+  const date = $('#date').value;
+  if (!date) return;
+  try {
+    const [day, rooms] = await Promise.all([api(`/v1/timetable?date=${date}`), api('/v1/rooms')]);
+    $('#dayinfo').textContent = `dayOfWeek ${day.dayOfWeek} · ${day.count} 条课时 · 数据 ${day.lastUpdated}`;
+    const byRoom = new Map();
+    for (const s of day.slots) {
+      if (!byRoom.has(s.roomCode)) byRoom.set(s.roomCode, []);
+      byRoom.get(s.roomCode).push(s);
+    }
+    const table = $('#grid');
+    table.replaceChildren();
+
+    const head = el('tr');
+    head.append(el('th', { className: 'room', textContent: 'room' }));
+    for (const h of HOURS) head.append(el('th', { textContent: h.slice(0, 2) }));
+    table.append(head);
+
+    for (const r of rooms) {
+      const tr = el('tr');
+      tr.append(el('td', { className: 'room', textContent: r.code, title: `${r.building} · ${r.capacity} seats` }));
+      const slots = byRoom.get(r.code) || [];
+      for (const h of HOURS) {
+        const cellStart = mins(h), cellEnd = cellStart + 60;
+        const hit = slots.find((s) => mins(s.start) < cellEnd && cellStart < mins(s.end) && mins(s.start) <= cellStart);
+        const td = el('td');
+        if (hit) { td.className = 'busy'; td.textContent = hit.courseCode; td.title = `${hit.start}-${hit.end} ${hit.courseCode}`; }
+        else if (cellEnd <= 8 * 60 || cellStart >= 22 * 60) td.className = 'out';
+        else td.className = 'free';
+        tr.append(td);
+      }
+      table.append(tr);
+    }
+  } catch (e) {
+    toast('课表读取失败：' + e.message, true);
+  }
+}
+
+// ---------------------------------------------------------------- rooms
+async function loadRooms() {
+  try {
+    const rooms = await api('/v1/rooms');
+    const body = $('#rooms tbody');
+    body.replaceChildren();
+    const sel = $('#slotRoom');
+    sel.replaceChildren();
+    for (const r of rooms) {
+      const tr = el('tr');
+      const mk = (value, type = 'text', width) => el('input', { type, value: value == null ? '' : value, style: width ? `width:${width}` : '' });
+      const code = mk(r.code), building = mk(r.building), floor = mk(r.floor), cap = mk(r.capacity, 'number');
+      const sockets = el('select');
+      for (const [v, t] of [['', '未知'], ['true', '有'], ['false', '没']]) {
+        const o = el('option', { value: v, textContent: t });
+        if (String(r.sockets) === v) o.selected = true;
+        sockets.append(o);
+      }
+      const seat = mk(r.seatType);
+      tr.append(el('td', {}, [code]), el('td', {}, [building]), el('td', {}, [floor]),
+                el('td', {}, [cap]), el('td', {}, [sockets]), el('td', {}, [seat]));
+      const save = el('button', { textContent: '保存' });
+      save.onclick = async () => {
+        try {
+          await api(`/v1/admin/rooms/${encodeURIComponent(r.code)}`, {
+            method: 'PATCH',
+            body: JSON.stringify({
+              building: building.value, floor: floor.value, capacity: Number(cap.value),
+              sockets: sockets.value === '' ? null : sockets.value === 'true', seatType: seat.value,
+            }),
+          });
+          toast(`已保存 ${r.code}`);
+          refreshAll();
+        } catch (e) { toast(e.message, true); }
+      };
+      const del = el('button', { className: 'danger', textContent: '删除' });
+      del.onclick = async () => {
+        if (!confirm(`删除 ${r.code} 及其全部课时？`)) return;
+        try { await api(`/v1/admin/rooms/${encodeURIComponent(r.code)}`, { method: 'DELETE' }); toast('已删除 ' + r.code); refreshAll(); }
+        catch (e) { toast(e.message, true); }
+      };
+      tr.append(el('td', {}, [save, document.createTextNode(' '), del]));
+      body.append(tr);
+      sel.append(el('option', { value: r.code, textContent: `${r.code} · ${r.building}` }));
+    }
+  } catch (e) {
+    toast('教室读取失败：' + e.message, true);
+  }
+}
+
+$('#addRoom').onclick = async () => {
+  const sockets = $('#newSockets').value;
+  try {
+    await api('/v1/admin/rooms', {
+      method: 'POST',
+      body: JSON.stringify({
+        code: $('#newCode').value.trim(), building: $('#newBuilding').value.trim(),
+        floor: $('#newFloor').value.trim(), capacity: Number($('#newCapacity').value),
+        sockets: sockets === '' ? null : sockets === 'true',
+        seatType: $('#newSeat').value.trim() || null,
+      }),
+    });
+    toast('教室已新增');
+    refreshAll();
+  } catch (e) { toast(e.message, true); }
+};
+
+// ---------------------------------------------------------------- slots
+const DAYNAME = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+
+async function loadSlots() {
+  const body = $('#slots tbody');
+  body.replaceChildren();
+  const code = $('#slotRoom').value;
+  if (!code) return;
+  let list = [];
+  try {
+    list = await api(`/v1/admin/rooms/${encodeURIComponent(code)}/slots`);
+  } catch (e) {
+    toast('课时读取失败：' + e.message, true);
+    return;
+  }
+  {
+    for (const s of list) {
+      const tr = el('tr');
+      tr.append(el('td', { textContent: s.roomCode }), el('td', { textContent: DAYNAME[s.dayOfWeek] }),
+                el('td', { textContent: `${s.start}–${s.end}` }), el('td', { textContent: s.courseCode }));
+      const del = el('button', { className: 'danger', textContent: '删除' });
+      del.onclick = async () => {
+        try { await api(`/v1/admin/slots/${s.id}`, { method: 'DELETE' }); toast('课时已删除'); refreshAll(); }
+        catch (e) { toast(e.message, true); }
+      };
+      tr.append(el('td', {}, [del]));
+      body.append(tr);
+    }
+  }
+}
+
+$('#addSlot').onclick = async () => {
+  try {
+    await api('/v1/admin/slots', {
+      method: 'POST',
+      body: JSON.stringify({
+        roomCode: $('#slotRoom').value, dayOfWeek: Number($('#slotDay').value),
+        start: $('#slotStart').value.trim(), end: $('#slotEnd').value.trim(),
+        courseCode: $('#slotCourse').value.trim(),
+      }),
+    });
+    toast('课时已新增');
+    refreshAll();
+  } catch (e) { toast(e.message, true); }
+};
+
+// ---------------------------------------------------------------- boot
+function weekButtons() {
+  const today = new Date();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+  const wrap = $('#weekdays');
+  wrap.replaceChildren();
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const iso = d.toISOString().slice(0, 10);
+    const b = el('button', { textContent: DAYNAME[i + 1].slice(1), title: iso });
+    b.onclick = () => { $('#date').value = iso; loadDay(); };
+    wrap.append(b, document.createTextNode(' '));
+  }
+}
+
+async function refreshAll() {
+  await loadMeta();
+  await loadSwitches();
+  await loadRooms();
+  await loadSlots();
+  await loadDay();
+}
+
+$('#date').value = new Date().toISOString().slice(0, 10);
+weekButtons();
+$('#reload').onclick = refreshAll;
+$('#date').onchange = loadDay;
+$('#slotRoom').onchange = loadSlots;
+refreshAll();
+</script>
+</body>
+</html>
