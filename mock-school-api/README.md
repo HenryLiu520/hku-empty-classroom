@@ -9,6 +9,7 @@
 - 端口 **9000**（只绑 `127.0.0.1`）
 - 自己的数据库 **`mockschool`**（与项目库 `emptyclassroom` 分开）
 - 文档：[`docs/API.md`](docs/API.md)（人读）· [`docs/openapi.yaml`](docs/openapi.yaml)（OpenAPI 3.1，可导入 Postman / Swagger UI）
+- 设计日志与架构图：[`design/`](design/)（英文 md / docx / pdf + 中英两张图）
 
 ---
 
