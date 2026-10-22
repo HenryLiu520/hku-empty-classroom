@@ -71,6 +71,16 @@ a room, and — only if the account is allowed to — change room time or manage
 | Remove **any** review (your own: everyone) | — | — | ✓ |
 | Manage accounts: create, promote/demote, reset password, delete | — | — | ✓ |
 
+### Mobile client
+
+`mobile/` is a second front end for the **same backend**: Vue 3 + Vite, built mobile first (bottom tabs, cards, one-handed reach), served on **5174**.
+
+It calls the same `/api` end points with the same token, so **the backend did not change**. The dev server proxies `/api` to `8080`, which means there is no second API and no copy of the business rules.
+
+- Sign in · find a free room · open a room (timetable strip + reviews) · switch language (EN / 简体 / 繁體)
+- Administrator pages stay on the desktop client; the mobile app is the student view
+- `cd mobile && npm install && npm run dev` → <http://localhost:5174>
+
 ## Screenshots
 
 | | |
