@@ -7,6 +7,8 @@ Everything about **why** and **how** the simulated feed was designed, in one pla
 | `design-log-2026-10-22.md` | The design log (image embedded). Best for reading and for editing |
 | `design-log-2026-10-22.docx` | Same content as Word (image embedded, editable) |
 | `design-log-2026-10-22.pdf` | Same content as PDF, 2 pages |
+| `feedback-and-decisions.md` | **Where the design came from**: group discussion + feedback from friends outside the group, decision by decision. Square brackets mark what the group fills in |
+| `feedback-and-decisions.docx` / `.pdf` | Same content, Word and PDF |
 | `figures/two-systems-architecture-en.png` | The architecture figure, English |
 | `figures/two-systems-architecture.png` | The same figure, Chinese |
 | `figures/*.py`, `figures/*.html` | Sources of the figures. Edit and re-render with headless Chrome: `--headless=new --screenshot=out.png --window-size=1320,950 file.html` |
