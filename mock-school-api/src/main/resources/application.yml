@@ -6,9 +6,23 @@ server:
 spring:
   application:
     name: mock-school-api
+  datasource:
+    # 自己的库（与项目库分开）：mockschool
+    url: jdbc:postgresql://localhost:5433/mockschool
+    username: ${USER:ran}
+    password: ""
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 
 app:
-  # 真接口不会裸奔：调用方必须带 X-Api-Key。演示用的键，可被环境变量覆盖。
+  # 真接口不会裸奔：调用方必须带 X-Api-Key（只读与写接口都要）。演示用的键，可被环境变量覆盖。
   api-key: ${MOCK_API_KEY:hku-demo-key}
 
 logging:

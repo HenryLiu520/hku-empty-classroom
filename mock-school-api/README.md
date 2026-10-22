@@ -1,61 +1,123 @@
-# mock-school-api — 模拟的学校课表接口（test double）
+# mock-school-api — 模拟的学校课表系统（simulated feed）
 
-> ⚠️ 这是**我们自己写的模拟上游**，不是香港大学的真实接口。报告里必须写成
-> *a simulated feed / stub service*，不得写成 "the University's API"。
+> ⚠️ **这是我们自己写的模拟系统，不是香港大学的官方接口。**
+> 报告与演示里必须写成 *a simulated feed / stub service*，不能写成 "the University's API"。
 
-## 它为什么存在
+一套**独立运行**的小系统：自己持有课表（PostgreSQL），对外提供只读 API（真接口将来会给的那部分），
+外加一组控制开关，用来模拟「数据旧了 / 响应慢了 / 服务挂了」三种现实情况。
 
-我们的系统要读学校的课表（Plan §3.1：课表是**输入**，只读），但读取权限还没拿到
-（Plan §5.1 的 Plan B）。而最难测的恰恰是**这条边界**：
+- 端口 **9000**（只绑 `127.0.0.1`）
+- 自己的数据库 **`mockschool`**（与项目库 `emptyclassroom` 分开）
+- 文档：[`docs/API.md`](docs/API.md)（人读）· [`docs/openapi.yaml`](docs/openapi.yaml)（OpenAPI 3.1，可导入 Postman / Swagger UI）
 
-- 上游的数据是 2 小时前的，我们的回答还准吗？界面有没有说实话？
-- 上游要 3 秒才回，会不会把我们的请求拖死？
-- 上游直接挂了，我们是报错还是降级？
+---
 
-没有上游就没法回答这三问。所以我们做一个**独立进程**，实现预期的只读契约，
-再加三个只有测试替身才有的开关。
+## 为什么做这个
 
-## 接口（只读，需要 `X-Api-Key`）
+我们的系统要读学校课表（Plan §3.1：课表是**输入**，只读），但读取权限还没拿到（Plan §5.1 的 Plan B）。
+而最难的恰恰是**这条边界**：
 
-| 方法 | 路径 | 说明 |
+1. 上游数据是 2 小时前的，我们的回答还准吗？界面有没有说实话？
+2. 上游要 3 秒才回，会不会把我们的请求拖死？
+3. 上游直接挂了，我们是报错还是降级？
+
+没有上游就没法回答这三问。所以这里做一个**能真正持有数据、能用 API 交互**的替身。
+
+## 结构
+
+```
+            ┌──────────────────────────────┐
+            │  mock-school-api  (this)     │
+  curl ────▶│  :9000  Spring Boot 4        │
+            │  ├─ /v1/**        只读契约    │──┐
+            │  ├─ /v1/admin/**  写入        │  │
+            │  └─ /v1/_control  测试开关    │  │
+            └──────────────────────────────┘  │
+                                              ▼
+                                    PostgreSQL  (mockschool)
+                                     ├─ rooms
+                                     ├─ class_slots
+                                     └─ feed_meta
+```
+
+```
+src/main/java/hku/mock/
+  MockSchoolApiApplication.java  启动
+  ProviderState.java             三个开关（stale / slow / down）
+  domain/   Room, ClassSlot, FeedMeta
+  repo/     RoomRepository, ClassSlotRepository, FeedMetaRepository
+  service/  TimetableService     读、写、冲突检查、revision 维护
+  web/      PublicController     /v1/**（只读）
+            AdminController      /v1/admin/**（写）
+            ControlController    /v1/_control/**（测试开关）
+            ApiKeyGuard          API key + 慢响应 + 宕机
+            GlobalErrors         统一错误体 {error, message}
+src/main/resources/db/migration/
+  V1__schema.sql                  三张表
+  V2__seed.sql                    种子数据（10 间房 / 79 条课时，从项目库导出）
+```
+
+## 数据模型
+
+| 表 | 作用 | 关键字段 |
 |---|---|---|
-| GET | `/v1/meta` | provider / term / version / **lastUpdated** / rooms / classSlots |
-| GET | `/v1/rooms[?building=]` | 教室清单（code / building / floor / capacity / sockets / seatType） |
-| GET | `/v1/timetable?date=YYYY-MM-DD[&building=]` | 该日全部课时（按星期几映射周课表，周一 = 1） |
-| GET | `/v1/timetable/{roomCode}?date=YYYY-MM-DD` | 单间房的当日课时 |
+| `rooms` | 教室 | `code`（唯一）、`building`、`floor`、`capacity`、`sockets`（**null = 未知**）、`seat_type` |
+| `class_slots` | 周课表 | `room_id`、`day_of_week`（周一 = 1）、`start_time`、`end_time`、`course_code` |
+| `feed_meta` | 单行元信息 | `provider`、`term`、`generated_at`、`revision` |
 
-`lastUpdated` 是**消费端判断数据新鲜度的唯一依据** —— 这正是 Plan §3.1 要求的
-"the answer has to state how fresh the data behind it is"。
-
-## 控制开关（真接口不会有；不要求 API key，只绑 127.0.0.1）
-
-| 方法 | 路径 | 效果 |
-|---|---|---|
-| POST | `/v1/_control/stale?minutes=90` | 把 `lastUpdated` 往前提 90 分钟 |
-| POST | `/v1/_control/slow?ms=800` | 每个只读响应先睡 800 ms |
-| POST | `/v1/_control/down[?value=true]` | 只读端点直接 503 |
-| POST | `/v1/_control/reset` | 全部复位 |
-| GET | `/v1/_control/state` | 当前开关状态 |
+**语义**：日期 → 星期几 → 查该天的课。`generated_at` 在每次写操作时更新，`revision` +1。
 
 ## 跑起来
 
 ```bash
-scripts/mock-school.sh start      # 首次会先 mvn package（约 30 s）
-scripts/mock-school.sh status
-scripts/verify-mock.sh            # 8 步证据：契约 + 401 + 旧数据 + 慢响应 + 503 + 复位
+# 首次：建库（脚本会做）
+scripts/mock-school.sh start        # 首次会 mvn package，约 40 s
+scripts/mock-school.sh status       # 打一次 /v1/meta 看状态
+
+# 10 项证据：只读契约 / 写入与读回 / 冲突拒绝 / 变旧 / 变慢 / 宕机
+scripts/verify-mock.sh
+
 scripts/mock-school.sh stop
 ```
 
-默认端口 **9000**，默认 API key **`hku-demo-key`**（可用 `MOCK_API_KEY` 覆盖）。
+默认 API key：`hku-demo-key`（可用 `MOCK_API_KEY` 覆盖）。
+
+## 验证结果（2026-10-22 实测）
+
+```
+meta            provider=HKU timetable (simulated), revision=1, rooms=10, classSlots=79
+rooms           10 间 / 4 栋楼
+timetable       2026-10-27（周二）→ 21 条课时
+单间房          CPD-1.09 → 3 条（COMP1110 / COMP1117 / MATH1013）
+无 API key      HTTP 401
+写入后读回      周六课时数 0 → 1 → 0，revision 1 → 2
+时间冲突        HTTP 400  {"error":"BAD_REQUEST","message":"overlaps an existing class: COMP1110 09:00-10:50"}
+stale=90        lastUpdated 从 05:08Z 退到 03:38Z
+slow=800        HTTP 200 in 0.810 s
+down / reset    HTTP 503 / HTTP 200
+```
+
+## 设计决定（报告里可以写）
+
+| 决定 | 理由 |
+|---|---|
+| **独立进程 + 独立数据库** | 只有跨进程才测得到「读外部服务」的真实边界：网络失败、超时、旧数据。放在自己库里测不到 |
+| **`lastUpdated` 由数据时间决定** | Plan §3.1 承诺「回答要说明数据有多新」，这个字段就是兑现入口 |
+| **`revision` 每次写 +1** | 消费端可以便宜地发现「课表变过」，不必每次全量比对 |
+| **`sockets` 用 null 而不是 false** | 「不知道」和「没有」是两件事；写成 false 是撒谎 |
+| **只读接口要 API key** | 真接口不会裸奔；这样「有权限 / 没权限」这条路径也被测到 |
+| **控制开关不要 key** | 否则开关一开就关不掉 |
+| **时间冲突在服务端拒绝** | 「课表」这一数据本身不允许同房同日重叠；这条规则属于上游，不属于我们的系统 |
+
+## 没有做什么（limitations）
+
+- **不写回真实系统**：模拟系统只在我们本机跑。
+- **不做分页 / 增量同步**：数据量小（79 条），全量返回。
+- **不做令牌签发 / 续期**：只校验一个固定 key，够测「有没有权限」这一层。
+- **不模拟部分数据缺失**：可以加一个 `_control/partial` 开关，目前没做。
+- **种子数据是一次性导出的**：真实学期开始后课表会变，这份数据不会自动更新。
 
 ## 数据来源
 
-`src/main/resources/seed.json` 是从项目数据库**导出**的（10 间房 / 79 条课时），不是手写的。
-导出脚本见提交说明；改数据就重新导出一次，不要手工编辑这个文件。
-
-## 它没有做什么（报告里可以写成 limitations）
-
-- 不做写入：真实接口我们也只会读。
-- 不做分页/增量同步：原型数据量小，全量返回就够。
-- 不做认证令牌的签发/续期：只校验一个固定的 key，够用来测"有没有权限"这一层。
-- 不模拟"部分数据缺失"：下一步可以加一个 `/_control/partial` 开关。
+`V2__seed.sql` 由脚本从项目数据库导出（10 间教室 / 79 条课时 / 4 栋楼），**不是手写**。
+要改数据：改项目库 → 重新导出 → 新增一个 Flyway 迁移（不要改已应用的 V1/V2）。

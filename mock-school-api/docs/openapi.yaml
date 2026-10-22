@@ -1,0 +1,401 @@
+openapi: 3.1.0
+info:
+  title: mock-school-api — simulated HKU timetable feed
+  version: 1.0.0
+  description: |
+    A **test double** for the University timetable service that the Empty Classroom
+    Plan expects to read from. It is not an official HKU service and must be
+    described as a *simulated feed* in any write-up.
+
+    All `/v1/**` endpoints except `/v1/_control/**` require the `X-Api-Key` header.
+servers:
+  - url: http://127.0.0.1:9000
+    description: Local instance (binds to loopback only)
+security:
+  - ApiKeyAuth: []
+tags:
+  - name: public
+    description: Read-only contract a real feed would provide
+  - name: admin
+    description: Write side (the registrar's view) — not part of what we would be granted
+  - name: control
+    description: Test switches; these do not exist on a real feed and need no API key
+
+paths:
+  /v1/meta:
+    get:
+      tags: [public]
+      summary: Provider metadata, data timestamp and revision
+      responses:
+        "200":
+          description: Feed metadata
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Meta" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "503": { $ref: "#/components/responses/Unavailable" }
+
+  /v1/rooms:
+    get:
+      tags: [public]
+      summary: List rooms
+      parameters:
+        - name: building
+          in: query
+          required: false
+          schema: { type: string }
+          description: Exact building name, case-insensitive
+      responses:
+        "200":
+          description: Rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Room" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/timetable:
+    get:
+      tags: [public]
+      summary: All class slots on one date
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema: { type: string, format: date }
+        - name: building
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Slots for the weekday of that date
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DaySlots" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/timetable/{roomCode}:
+    get:
+      tags: [public]
+      summary: Class slots of one room on one date
+      parameters:
+        - name: roomCode
+          in: path
+          required: true
+          schema: { type: string }
+        - name: date
+          in: query
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: Slots for that room
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DaySlots" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/admin/rooms:
+    post:
+      tags: [admin]
+      summary: Create a room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Room" }
+      responses:
+        "200":
+          description: Created room
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Room" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/admin/rooms/{code}:
+    patch:
+      tags: [admin]
+      summary: Update a room (only the fields provided)
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Room" }
+      responses:
+        "200":
+          description: Updated room
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Room" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      tags: [admin]
+      summary: Delete a room and all of its slots
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: { type: string }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/admin/rooms/{code}/slots:
+    get:
+      tags: [admin]
+      summary: Full weekly timetable of one room
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Slot" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/admin/slots:
+    post:
+      tags: [admin]
+      summary: Add a class slot (overlaps are rejected)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SlotInput" }
+      responses:
+        "200":
+          description: Created slot
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Slot" }
+        "400":
+          description: Invalid input or time overlap
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /v1/admin/slots/{id}:
+    delete:
+      tags: [admin]
+      summary: Delete one slot
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int64 }
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: { type: integer }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /v1/_control/state:
+    get:
+      tags: [control]
+      summary: Current state of the test switches
+      security: []
+      responses:
+        "200":
+          description: Switch state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SwitchState" }
+
+  /v1/_control/stale:
+    post:
+      tags: [control]
+      summary: Make the data look N minutes older
+      security: []
+      parameters:
+        - name: minutes
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0 }
+      responses:
+        "200":
+          description: Switch state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SwitchState" }
+
+  /v1/_control/slow:
+    post:
+      tags: [control]
+      summary: Delay every /v1 response by N milliseconds
+      security: []
+      parameters:
+        - name: ms
+          in: query
+          required: true
+          schema: { type: integer, minimum: 0, maximum: 30000 }
+      responses:
+        "200":
+          description: Switch state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SwitchState" }
+
+  /v1/_control/down:
+    post:
+      tags: [control]
+      summary: Make the feed return 503
+      security: []
+      parameters:
+        - name: value
+          in: query
+          required: false
+          schema: { type: boolean, default: true }
+      responses:
+        "200":
+          description: Switch state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SwitchState" }
+
+  /v1/_control/reset:
+    post:
+      tags: [control]
+      summary: Reset all switches
+      security: []
+      responses:
+        "200":
+          description: Switch state
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SwitchState" }
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Api-Key
+
+  schemas:
+    Meta:
+      type: object
+      properties:
+        provider: { type: string }
+        term: { type: string }
+        version: { type: string }
+        note: { type: string }
+        generatedAt: { type: string, format: date-time }
+        lastUpdated: { type: string, format: date-time, description: generatedAt minus the stale offset }
+        revision: { type: integer, description: Increases on every write }
+        now: { type: string, format: date-time }
+        staleMinutes: { type: integer }
+        rooms: { type: integer }
+        classSlots: { type: integer }
+
+    Room:
+      type: object
+      required: [code, building, floor, capacity]
+      properties:
+        code: { type: string, example: CPD-1.09 }
+        building: { type: string, example: Central Podium }
+        floor: { type: string, example: 1F }
+        capacity: { type: integer, example: 40 }
+        sockets:
+          type: [boolean, "null"]
+          description: null means unknown, not false
+        seatType: { type: [string, "null"], example: Individual desks }
+
+    Slot:
+      type: object
+      properties:
+        id: { type: integer, format: int64 }
+        roomCode: { type: string }
+        building: { type: string }
+        dayOfWeek: { type: integer, minimum: 1, maximum: 7, description: Monday = 1 }
+        start: { type: string, example: "09:00" }
+        end: { type: string, example: "10:50" }
+        courseCode: { type: string, example: COMP1110 }
+
+    SlotInput:
+      type: object
+      required: [roomCode, dayOfWeek, start, end, courseCode]
+      properties:
+        roomCode: { type: string }
+        dayOfWeek: { type: integer, minimum: 1, maximum: 7 }
+        start: { type: string, example: "14:00" }
+        end: { type: string, example: "15:50" }
+        courseCode: { type: string }
+
+    DaySlots:
+      type: object
+      properties:
+        date: { type: string, format: date }
+        dayOfWeek: { type: integer }
+        lastUpdated: { type: string, format: date-time }
+        count: { type: integer }
+        slots:
+          type: array
+          items: { $ref: "#/components/schemas/Slot" }
+
+    SwitchState:
+      type: object
+      properties:
+        staleMinutes: { type: integer }
+        slowMs: { type: integer }
+        down: { type: boolean }
+
+    Error:
+      type: object
+      properties:
+        error: { type: string, example: BAD_REQUEST }
+        message: { type: string }
+
+  responses:
+    BadRequest:
+      description: Invalid parameters
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unauthorized:
+      description: Missing or wrong X-Api-Key
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Unknown room or slot
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unavailable:
+      description: Simulated outage
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
