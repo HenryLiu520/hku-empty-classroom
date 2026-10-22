@@ -5,7 +5,7 @@
 > 回答一個關於港大教室的問題：**課堂之間，到底哪幾間教室是空的？**
 > Vue 3 + Spring Boot + PostgreSQL · COMP1110 第 08 組（香港大學）· 由 **LIU Haoran（u3686264）** 開發
 
-![查詢頁：14:00 到 15:50 哪些教室空著](docs/images/find-a-room.png)
+![查詢頁：14:00 到 15:50 哪些教室空著](docs/screens/desktop/02-find-a-room.jpg)
 
 ---
 
@@ -76,14 +76,11 @@
 
 ## 介面
 
-| | |
-|---|---|
-| **按時間窗查詢** | **教室詳情頁** |
-| ![查詢](docs/images/find-a-room.png) | ![教室頁](docs/images/room-page.png) |
-| **瀏覽教室** | **管理端變更** |
-| ![瀏覽教室](docs/images/all-rooms.png) | ![管理端](docs/images/admin-change.png) |
-| **設施編輯（僅管理員）** | **帳號管理（僅超級管理員）** |
-| ![設施](docs/images/facilities.png) | ![帳號](docs/images/accounts.png) |
+桌面端、手機端、模擬學校系統，全部從跑著的專案裡截的：**[docs/SCREENS.zh-TW.md](docs/SCREENS.zh-TW.md)**。
+
+| | | |
+|---|---|---|
+| ![找空教室](docs/screens/desktop/02-find-a-room.jpg) | ![教室與評價](docs/screens/desktop/03-room-and-reviews.jpg) | ![手機端](docs/screens/mobile/02-room.jpg) |
 
 ## 怎麼算的
 

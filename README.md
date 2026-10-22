@@ -5,7 +5,7 @@
 > A web app that answers one question about HKU teaching rooms: **which rooms are free between classes, right now?**
 > Vue 3 + Spring Boot + PostgreSQL · COMP1110 Group 08 (HKU) · built by **LIU Haoran (u3686264)**
 
-![Search page: which rooms are free from 14:00 to 15:50](docs/images/find-a-room.png)
+![Search page: which rooms are free from 14:00 to 15:50](docs/screens/desktop/02-find-a-room.jpg)
 
 ---
 
@@ -83,14 +83,12 @@ It calls the same `/api` end points with the same token, so **the backend did no
 
 ## Screenshots
 
-| | |
-|---|---|
-| **Search a free window** | **A room's own page** |
-| ![Search](docs/images/find-a-room.png) | ![Room page](docs/images/room-page.png) |
-| **All rooms** | **Staff change screen** |
-| ![All rooms](docs/images/all-rooms.png) | ![Admin](docs/images/admin-change.png) |
-| **Facilities edit (administrators only)** | **Accounts (super administrators only)** |
-| ![Facilities](docs/images/facilities.png) | ![Accounts](docs/images/accounts.png) |
+Desktop, phone, and the simulated feed, all captured from the running project:
+**[docs/SCREENS.md](docs/SCREENS.md)**.
+
+| | | |
+|---|---|---|
+| ![Find a free room](docs/screens/desktop/02-find-a-room.jpg) | ![Room and reviews](docs/screens/desktop/03-room-and-reviews.jpg) | ![Phone client](docs/screens/mobile/02-room.jpg) |
 
 ## How it works
 
